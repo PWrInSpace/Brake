@@ -12,9 +12,9 @@ void IMUTask(void *arg){
     ImuAPI IMU;
 
     while(1){             
-        IMU.readData();
+        IMU.readRawData();
 
-        queue.push(IMU.getData());
+        queue.push(IMU.getRawData());
         vTaskDelay(10/ portTICK_PERIOD_MS);
     }
 }
