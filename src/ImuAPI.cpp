@@ -4,7 +4,7 @@
 extern Errors errors;
 
 ImuAPI::ImuAPI(){
-    uint16_t averagePressure = 0;
+    float averagePressure = 0;
     if (!imu.init() || !ps.init() || !mag.init())
     {
         errors.imu_error = IMU_INIT_ERROR;
@@ -40,7 +40,7 @@ void ImuAPI::readData(){
 
 String ImuAPI::getData(){
     char report[100];
-    snprintf(report, sizeof(report), "%6d;%6d;%6d;%6d;%6d;%6d;%6d;%6d;%6d",
+    snprintf(report, sizeof(report), "%6d;%6d;%6d;%6d;%6d;%6d;%6f;%f;%6d",
                 data.ax, data.ay, data.az,
                 data.gx, data.gy, data.gz,
                 data.pressure, data.altitude, data.temperature);

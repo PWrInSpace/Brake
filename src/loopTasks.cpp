@@ -15,7 +15,7 @@ void IMUTask(void *arg){
         IMU.readData();
 
         queue.push(IMU.getData());
-        vTaskDelay(100/ portTICK_PERIOD_MS);
+        vTaskDelay(10/ portTICK_PERIOD_MS);
     }
 }
 

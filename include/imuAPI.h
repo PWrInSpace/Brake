@@ -14,7 +14,7 @@ class ImuAPI{
     LPS ps;
     LIS3MDL mag;
     Imu_data data;
-    uint16_t initial_pressure;
+    float initial_pressure;
     
     public:
     ImuAPI();

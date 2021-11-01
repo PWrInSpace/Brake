@@ -14,8 +14,8 @@ struct Imu_data{
     uint16_t ay;
     
     uint8_t temperature;
-    uint16_t pressure;
-    uint16_t altitude;
+    float pressure;
+    float altitude;
 };
 
 #endif
