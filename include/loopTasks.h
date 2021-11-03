@@ -8,4 +8,6 @@ void IMUTask(void *arg);
 
 void SDTask(void *arg);
 
+void errorTask(void *arg);
+
 #endif

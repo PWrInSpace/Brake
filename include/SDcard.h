@@ -7,7 +7,7 @@
 #include "queue.h"
 #include "dataStructs.h"
 
-#define SD_CS 4
+#define SD_CS 33
 
 bool SD_write(const String & file, const String & data);
 

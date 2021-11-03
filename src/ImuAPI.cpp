@@ -3,23 +3,27 @@
 
 extern Errors errors;
 
-ImuAPI::ImuAPI(GyroscpoeScale _gyrScale, AccelerometerScale _accScale, BandWith _bandWith){
+ImuAPI::ImuAPI(GyroscpoeScale _gyrScale, AccelerometerScale _accScale, Bandwith _bandwith){
     gyrScale = _gyrScale;
     accScale = _accScale;
-    bandWith = _bandWith;
+    bandwith = _bandwith;
 
     float averagePressure = 0;
     if (!imu.init() || !ps.init() || !mag.init())
     {
         errors.imu_error = IMU_INIT_ERROR;
         Serial.println("Failed to detect and initialize IMU!"); 
-    }
-
+    }else{
     for(int i=0; i<5; ++i){
         averagePressure += ps.readPressureMillibars();
         vTaskDelay(1/ portTICK_PERIOD_MS);
     }
     initial_pressure = averagePressure/5;
+
+    imu.enableDefault();
+    ps.enableDefault();
+    mag.enableDefault();
+    }
 
 }
 
@@ -28,7 +32,7 @@ void ImuAPI::LSM6SetReg(){
     
     //accelerometr
     reg |= AccReg[accScale];
-    reg |= BandWithReg[bandWith];
+    reg |= bandwithReg[bandwith];
     //reg ODR
     
     imu.writeReg(imu.regAddr::CTRL1_XL, reg);

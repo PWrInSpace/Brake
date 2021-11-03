@@ -12,7 +12,7 @@ extern Errors errors;
 constexpr uint8_t AccReg[4] = {(0<<2), (1<<3), (1<<3) | (1<<2), (1<<2)};
 constexpr float AccFactor[4] = {0.061, 0.122, 0.244, 0.488};
 constexpr uint8_t GyroReg[4] = {};
-constexpr uint8_t BandWithReg[4] = {(1<<1) | (1<<0), (1<<1), (1<<0), (0<<0)};
+constexpr uint8_t bandwithReg[4] = {(1<<1) | (1<<0), (1<<1), (1<<0), (0<<0)};
 
 enum AccelerometerScale{
     A_2g = 0,
@@ -28,7 +28,7 @@ enum GyroscpoeScale{
     G_2000dps,
 };
 
-enum BandWith{
+enum Bandwith{
     B_50Hz = 0,
     B_100Hz,
     B_200Hz,
@@ -41,14 +41,14 @@ class ImuAPI{
     LIS3MDL mag;
     Imu_data data;
     float initial_pressure;
-    BandWith bandWith;
+    Bandwith bandwith;
     AccelerometerScale accScale;
     GyroscpoeScale gyrScale;
 
     public:
     ImuAPI(GyroscpoeScale _gyrScale = GyroscpoeScale::G_245dps, 
             AccelerometerScale _accScale = AccelerometerScale::A_2g,
-            BandWith _bandWith = BandWith::B_400Hz);
+            Bandwith _bandwith = Bandwith::B_400Hz);
     bool begin();
 
     
