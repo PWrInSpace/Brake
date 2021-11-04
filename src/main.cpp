@@ -1,47 +1,48 @@
 #include <Arduino.h>
-#include <Wire.h>
-#include <ESP32Servo.h>
+
 #include "dataStructs.h"
 #include "errorStructs.h"
 #include "queue.h"
 #include "loopTasks.h"
-
+#include "singleTasks.h"
+#include "imuAPI.h"
 
 Errors errors;
 Queue queue;
-Servo servo;
-uint8_t servoPin = 5;
+DataStruct dataStruct;
 
-char report[200];
+
+char report[80];
+
+ImuAPI IMU;
 
 void setup()
 {
   Serial.begin(115200);
-  Wire.begin();//
+  Wire.begin();
 
-
-  xTaskCreate(IMUTask,   "IMU Task",   65536, NULL, 2, NULL);
-  xTaskCreate(SDTask,    "SD Task",    65536, NULL, 2, NULL);
-  xTaskCreate(errorTask, "error Task", 16384, NULL, 3, NULL);
+  xTaskCreate(servoTask, "servo Task",   65536, NULL, 1, NULL);
+  xTaskCreate(SDTask,    "SD Task",      65536, NULL, 2, NULL);
+  xTaskCreate(errorTask, "error Task",   16384, NULL, 3, NULL);
   
-  ESP32PWM::allocateTimer(0);
-  ESP32PWM::allocateTimer(1);
-  ESP32PWM::allocateTimer(2);
-  ESP32PWM::allocateTimer(3);
-  servo.setPeriodHertz(50);
-  servo.attach(servoPin, 500, 2400);
-  
-  
+  if(!IMU.begin()){
+    errors.imu_error = IMU_INIT_ERROR;
+    while(1){delay(100);}
+  }
+  IMU.setInitPressure();
+  dataStruct.rocketState = LAUNCHPAD;
+  //delay(1000);
 }
 
 void loop()
-{
-  servo.write(100);
-  delay(1000);
-  servo.write(0);
-  delay(1000);
-  //delay(5000);
-  //esp_sleep_enable_timer_wakeup(5* 10e5);
-  //esp_deep_sleep_start();
+{  
+  delay(50);
+  IMU.readRawData();
+  dataStruct.imuData = IMU.getRawDataStruct();
+
+  String data = createDataFrame(); 
+  Serial.println(data);
   
+  queue.push(createDataFrame());
+ 
 }

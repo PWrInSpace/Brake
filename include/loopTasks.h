@@ -1,13 +1,21 @@
 #ifndef LOOPTASKS_HH
 #define LOOPTASKS_HH
 
-#include <LSM6.h>
-#include <LPS.h>
+#include "SDcard.h"
+#include "dataStructs.h"
+#include "errorStructs.h"
+#include "queue.h"
+#include "imuAPI.h"
+#include "SDcard.h"
+#include <ESP32Servo.h>
+#include <Wire.h>
 
-void IMUTask(void *arg);
+void servoTask(void *arg);
 
 void SDTask(void *arg);
 
 void errorTask(void *arg);
+
+void stateTask(void *arg);
 
 #endif

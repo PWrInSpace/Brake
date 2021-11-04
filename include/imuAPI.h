@@ -4,7 +4,7 @@
 #include <LPS.h>
 #include <LSM6.h>
 #include <LIS3MDL.h>
-#include "dataStructs.h"
+#include "imuStructs.h"
 #include "errorStructs.h"
 
 extern Errors errors;
@@ -14,33 +14,14 @@ constexpr float AccFactor[4] = {0.061, 0.122, 0.244, 0.488};
 constexpr uint8_t GyroReg[4] = {};
 constexpr uint8_t bandwithReg[4] = {(1<<1) | (1<<0), (1<<1), (1<<0), (0<<0)};
 
-enum AccelerometerScale{
-    A_2g = 0,
-    A_4g,
-    A_8g,
-    A_16g,
-};
-
-enum GyroscpoeScale{
-    G_245dps = 0,
-    G_500dps,
-    G_1000dps,
-    G_2000dps,
-};
-
-enum Bandwith{
-    B_50Hz = 0,
-    B_100Hz,
-    B_200Hz,
-    B_400Hz,
-};
 
 class ImuAPI{
     LSM6 imu;
     LPS ps;
     LIS3MDL mag;
-    Imu_data data;
-    float initial_pressure;
+
+    ImuData data;
+    float initPressure;
     Bandwith bandwith;
     AccelerometerScale accScale;
     GyroscpoeScale gyrScale;
@@ -50,10 +31,12 @@ class ImuAPI{
             AccelerometerScale _accScale = AccelerometerScale::A_2g,
             Bandwith _bandwith = Bandwith::B_400Hz);
     bool begin();
-
-    
+    void setInitPressure();
     void readRawData();
     String getRawData();
+    ImuData getRawDataStruct();
+    float getAltitude();
+    
     private:
     void LSM6SetReg();
 };

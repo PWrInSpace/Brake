@@ -1,21 +1,25 @@
-#ifndef DATASTRUCTS_HH
-#define DATASTRUCTS_HH
-#include <stdint.h>
+#ifndef DATA_STRUCTS_HH
+#define DATA_STRUCTS_HH
+#include "imuStructs.h"
+#include "errorStructs.h"
 
-struct Imu_data{
-    //Gyroscope
-    uint16_t gx;
-    uint16_t gy;
-    uint16_t gz;
+enum State{
+    LAUNCHPAD = 0,
+    FLIGHT,
+    AIRBRAKEON,
+    LANDING,
+    ONGROUND,
+};
 
-    //Accelerometer
-    uint16_t ax;
-    uint16_t az;
-    uint16_t ay;
+struct DataStruct{
+    ImuData imuData;
+
+    SDError sdStatus;
+    IMUError imuStatus;
     
-    uint8_t temperature;
-    float pressure;
-    float altitude;
+    State rocketState = LAUNCHPAD;
+    
+    uint8_t servoPosition;
 };
 
 #endif
