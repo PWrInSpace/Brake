@@ -1,5 +1,6 @@
 #include <Arduino.h>
-
+#include <ESP32Servo.h>
+#include <Wire.h>
 #include "dataStructs.h"
 #include "errorStructs.h"
 #include "queue.h"
@@ -10,7 +11,8 @@
 Errors errors;
 Queue queue;
 DataStruct dataStruct;
-
+Servo servo;
+bool isSaving;
 
 char report[80];
 
@@ -20,16 +22,20 @@ void setup()
 {
   Serial.begin(115200);
   Wire.begin();
+  
+  isSaving = false;
 
-  xTaskCreate(servoTask, "servo Task",   65536, NULL, 1, NULL);
+  xTaskCreate(stateTask, "state Task",    65536, NULL, 1, NULL);
   xTaskCreate(SDTask,    "SD Task",      65536, NULL, 2, NULL);
   xTaskCreate(errorTask, "error Task",   16384, NULL, 3, NULL);
   
+  servoInit();
+
   if(!IMU.begin()){
     errors.imu_error = IMU_INIT_ERROR;
     while(1){delay(100);}
   }
-  IMU.setInitPressure();
+  IMU.setInitPressure();  //Sprawdzać czy nie dało jakiejś wartości dziwnej +- 5 hpa od tego co przyszło
   dataStruct.rocketState = LAUNCHPAD;
   //delay(1000);
 }
@@ -37,12 +43,15 @@ void setup()
 void loop()
 {  
   delay(50);
-  IMU.readRawData();
-  dataStruct.imuData = IMU.getRawDataStruct();
+  if(!isSaving){
 
-  String data = createDataFrame(); 
-  Serial.println(data);
-  
-  queue.push(createDataFrame());
+    IMU.readRawData();
+    dataStruct.imuData = IMU.getRawDataStruct();
+
+    String data = createDataFrame(); 
+    Serial.println(data + String("    main"));
+    
+    queue.push(createDataFrame());
+  }
  
 }

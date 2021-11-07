@@ -4,11 +4,11 @@
 #include "SDcard.h"
 #include "dataStructs.h"
 #include "errorStructs.h"
+#include "singleTasks.h"
 #include "queue.h"
 #include "imuAPI.h"
 #include "SDcard.h"
-#include <ESP32Servo.h>
-#include <Wire.h>
+
 
 void servoTask(void *arg);
 

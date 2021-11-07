@@ -2,7 +2,17 @@
 #define SINGLETASKS_HH
 
 #include <Arduino.h>
+#include <ESP32Servo.h>
+#include "dataStructs.h"
+
+//Servo 
+const uint8_t servoClosePosition = 0;
+const uint8_t servoOpenPostion = 100;
 
 String createDataFrame();
+
+void flightControlTask(void *arg);
+
+void servoInit();
 
 #endif

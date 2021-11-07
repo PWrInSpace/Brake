@@ -4,31 +4,7 @@ extern Errors errors;
 extern Queue queue;
 extern DataStruct dataStruct;
 extern ImuAPI IMU;
-
-void servoTask(void *arg){
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-    uint8_t servoPin = 5;
-    Servo servo;
-    
-    ESP32PWM::allocateTimer(0);
-    ESP32PWM::allocateTimer(1);
-    ESP32PWM::allocateTimer(2);
-    ESP32PWM::allocateTimer(3);
-    servo.setPeriodHertz(50);
-    servo.attach(servoPin, 500, 2400);
-
-    while(1){
-        servo.write(0);
-        delay(5000);
-        servo.write(10);
-        delay(5000);
-        servo.write(50);
-        delay(5000);
-        servo.write(100);
-        delay(5000);
-    }
-}
-
+extern bool isSaving;
 
 
 void SDTask(void *arg) {
@@ -47,15 +23,16 @@ void SDTask(void *arg) {
         while(1){vTaskDelay(1 / portTICK_PERIOD_MS);}
     }
     
-    if(!SD_write("/Brake_data.txt", "a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature\n"));
+    if(!SD_write("/Brake_data.txt", "a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature; SD error, Imu error, Rocket State, servo\n"));
 
     while(1) {
         Serial.println(queue.getNumberOfElements());
         while(queue.getNumberOfElements()){
+            isSaving = true;
             String dataFrame = queue.pop() + "\n";
 
             digitalWrite(onBoardLed, HIGH);  //???
-            Serial.println(dataFrame); // Dla debugu
+            Serial.println(dataFrame + String("    sd")); // Dla debugu
             
             if(!SD_write("/Brake_data.txt", dataFrame)){
                 errors.sd_error = SD_WRITE_ERROR;
@@ -65,6 +42,7 @@ void SDTask(void *arg) {
         
             vTaskDelay(1 / portTICK_PERIOD_MS);
         }
+        isSaving = false;
         digitalWrite(onBoardLed, LOW);
         vTaskDelay(2000 / portTICK_PERIOD_MS);
     }
@@ -79,37 +57,72 @@ void errorTask(void *arg){
     pinMode(buzzerPin, OUTPUT);
     
     while(1){
-        if(errors.imu_error || errors.sd_error){
+        if(errors.imu_error || errors.sd_error || errors.rocketError){
             digitalWrite(buzzerPin, HIGH); //rozkmina czy lepiej przypsywać stan do zmiennej i tylko przy zmianie stanu używac digitalWrite czy tak jak teraz
-            //Serial.println("Error");
+            //while() blokowanie porgramu na state LAUNCHPAD podczas erroru
+            
         }else{
             digitalWrite(buzzerPin, LOW);
             //Serial.println("No Error");
         }
+
         vTaskDelay(500 / portTICK_PERIOD_MS);
     }
 }
 
-/*
--> zmienienie stanu z AIRBRAKEON na LANDING gdyby nie 
 
-*/
+/**
+ * Czy wyłączyć airBrake jeżeli igniter się nie odpali?
+ * 
+ *  
+ */
 void stateTask(void *arg){
-    uint8_t launchDetector = 15;
-    uint16_t brakeEjectionAltitude = 1000;
-    pinMode(launchDetector, INPUT);
+    pinMode(liftOffDetector, INPUT);
+    pinMode(igniterPin, OUTPUT);
+    digitalWrite(igniterPin, LOW);
 
-    if(digitalRead(launchDetector) == 0){
-        Serial.println("Launch wire, detection error");
+    if(digitalRead(liftOffDetector) == 1){
+        Serial.println("Jest 1");
+    }else{
+        Serial.println("Jest 0");
+    }
+
+    //chyba coś jeszcze 
+    if(digitalRead(liftOffDetector) == 1){
+        Serial.println("Launch wire, detection error");   
+        errors.rocketError = ROCKET_LIFTOFFDETECTOR_ERROR;
+    
+    }else if(dataStruct.airBrakeEjection){
+        Serial.println("air brake ejection error");
+        errors.rocketError = ROCKET_AIRBRAKE_ERROR;
+
+    }else if(dataStruct.igniterState){
+        Serial.println("Wrong igniter state");
+        errors.rocketError = ROCKET_IGNITER_ERROR;        
+    
+    }else if(dataStruct.rocketState != LAUNCHPAD){
+        Serial.println("Invalid rocket state");
+        errors.rocketError = ROCKET_STATE_ERROR;
+    }
+
+    if(errors.rocketError != ROCKET_NOERROR){
+        while(1) {vTaskDelay(100 / portTICK_PERIOD_MS);}
     }
 
     while(1){
-        if(dataStruct.rocketState == LAUNCHPAD && digitalRead(launchDetector) == 0){
+        if((dataStruct.rocketState == LAUNCHPAD) && (digitalRead(liftOffDetector) == 1)){
             dataStruct.rocketState = FLIGHT;
-        }else if(dataStruct.rocketState == FLIGHT && (IMU.getAltitude() > brakeEjectionAltitude) /*TIMER insted of altitude or redundant*/){
-            dataStruct.rocketState =  AIRBRAKEON;
-        }else if(dataStruct.rocketState == AIRBRAKEON /*&& check if rocket is under apoge*/){
+            xTaskCreate(flightControlTask, "flight control task", 16384, NULL, 1, NULL); 
 
+        }else if(dataStruct.rocketState == FLIGHT && dataStruct.airBrakeEjection){
+            dataStruct.rocketState = AIRBRAKEON;
+
+        }else if(dataStruct.rocketState == AIRBRAKEON && dataStruct.igniterState){
+            dataStruct.rocketState = LANDING;
+
+        }else if(dataStruct.rocketState == LANDING && dataStruct.imuData.altitude < 100){
+            dataStruct.rocketState = ONGROUND;
         }
+        vTaskDelay(2 / portTICK_PERIOD_MS);
     }
 }
