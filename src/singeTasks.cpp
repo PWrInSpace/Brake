@@ -24,20 +24,23 @@ void flightControlTask(void *arg){
     
 
     while(work){
-        if((breakEjectionTime > millis() - timer) && (dataStruct.airBrakeEjection == 0)){
+        if((breakEjectionTime < millis() - timer) && (dataStruct.airBrakeEjection == 0)){
             dataStruct.airBrakeEjection = 1;
             servo.write(servoOpenPostion);
         }
         
-        if((deployRecoveryTime > millis() - timer)){
+        if((deployRecoveryTime < millis() - timer)){
             digitalWrite(igniterPin, HIGH);
             dataStruct.igniterState = 1;
             work = false;
         }
+
+        vTaskDelay(1 / portTICK_PERIOD_MS);
     }
 
     servo.write(servoClosePosition); //close servo after parachute deploy
-    
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+    digitalWrite(igniterPin, LOW);
     vTaskDelete(NULL);  //Close task
 }
 

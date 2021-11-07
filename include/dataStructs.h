@@ -5,7 +5,7 @@
 
 //PINS
 const uint8_t liftOffDetector = GPIO_NUM_16;
-const uint8_t igniterPin = GPIO_NUM_34;
+const uint8_t igniterPin = GPIO_NUM_32;
 
 enum State{
     LAUNCHPAD = 0,

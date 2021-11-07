@@ -32,7 +32,7 @@ void SDTask(void *arg) {
             String dataFrame = queue.pop() + "\n";
 
             digitalWrite(onBoardLed, HIGH);  //???
-            Serial.println(dataFrame + String("    sd")); // Dla debugu
+            //Serial.println(dataFrame + String("    sd")); // Dla debugu
             
             if(!SD_write("/Brake_data.txt", dataFrame)){
                 errors.sd_error = SD_WRITE_ERROR;
@@ -81,14 +81,14 @@ void stateTask(void *arg){
     pinMode(igniterPin, OUTPUT);
     digitalWrite(igniterPin, LOW);
 
-    if(digitalRead(liftOffDetector) == 1){
+    if(digitalRead(liftOffDetector) == 0){
         Serial.println("Jest 1");
     }else{
         Serial.println("Jest 0");
     }
 
     //chyba coś jeszcze 
-    if(digitalRead(liftOffDetector) == 1){
+    if(digitalRead(liftOffDetector) == 0){
         Serial.println("Launch wire, detection error");   
         errors.rocketError = ROCKET_LIFTOFFDETECTOR_ERROR;
     
@@ -110,18 +110,20 @@ void stateTask(void *arg){
     }
 
     while(1){
-        if((dataStruct.rocketState == LAUNCHPAD) && (digitalRead(liftOffDetector) == 1)){
+        if((dataStruct.rocketState == LAUNCHPAD) && (digitalRead(liftOffDetector) == 0)){
             dataStruct.rocketState = FLIGHT;
+            Serial.println("FLIGHT");
             xTaskCreate(flightControlTask, "flight control task", 16384, NULL, 1, NULL); 
 
-        }else if(dataStruct.rocketState == FLIGHT && dataStruct.airBrakeEjection){
+        }else if(dataStruct.rocketState == FLIGHT && dataStruct.airBrakeEjection != 0){
             dataStruct.rocketState = AIRBRAKEON;
-
-        }else if(dataStruct.rocketState == AIRBRAKEON && dataStruct.igniterState){
+            Serial.println("AIRBRAKE");
+        }else if(dataStruct.rocketState == AIRBRAKEON && dataStruct.igniterState != 0){
             dataStruct.rocketState = LANDING;
-
-        }else if(dataStruct.rocketState == LANDING && dataStruct.imuData.altitude < 100){
+            Serial.println("LAnDING");
+        }else if(dataStruct.rocketState == LANDING && dataStruct.imuData.altitude < 100.0){
             dataStruct.rocketState = ONGROUND;
+            Serial.println("On ground");
         }
         vTaskDelay(2 / portTICK_PERIOD_MS);
     }

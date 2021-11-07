@@ -49,7 +49,7 @@ void loop()
     dataStruct.imuData = IMU.getRawDataStruct();
 
     String data = createDataFrame(); 
-    Serial.println(data + String("    main"));
+    //Serial.println(data + String("    main"));
     
     queue.push(createDataFrame());
   }
