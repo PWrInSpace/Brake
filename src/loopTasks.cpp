@@ -32,7 +32,7 @@ void SDTask(void *arg) {
             String dataFrame = queue.pop() + "\n";
 
             digitalWrite(onBoardLed, HIGH);  //???
-            //Serial.println(dataFrame + String("    sd")); // Dla debugu
+            Serial.println(dataFrame + String("    sd")); // Dla debugu
             
             if(!SD_write("/Brake_data.txt", dataFrame)){
                 errors.sd_error = SD_WRITE_ERROR;
