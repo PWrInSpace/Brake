@@ -39,7 +39,7 @@ void flightControlTask(void *arg){
     }
 
     servo.write(servoClosePosition); //close servo after parachute deploy
-    vTaskDelay(500 / portTICK_PERIOD_MS);
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
     digitalWrite(igniterPin, LOW);
     vTaskDelete(NULL);  //Close task
 }
