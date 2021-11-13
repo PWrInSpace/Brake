@@ -3,15 +3,17 @@
 
 extern DataStruct dataStruct;
 extern Servo servo;
+extern Errors errors;
 
 String createDataFrame(){
-    char dataFrame[150];
+    char dataFrame[200];
 
-    snprintf(dataFrame, sizeof(dataFrame), "%6d; %6d; %6d; %6d; %6d; %6d; %6f; %6f; %2d; %d; %d; %d; %3d;",
-            dataStruct.imuData.ax, dataStruct.imuData.az, dataStruct.imuData.ay,
-            dataStruct.imuData.gx, dataStruct.imuData.gz, dataStruct.imuData.gy,
+    snprintf(dataFrame, sizeof(dataFrame), "%6d; %6d; %6d; %6d; %6d; %6d; %6f; %6f; %2d; %3d; %d; %d; %d; %d; %d; %d;",
+            dataStruct.imuData.ax, dataStruct.imuData.ay, dataStruct.imuData.az,
+            dataStruct.imuData.gx, dataStruct.imuData.gy, dataStruct.imuData.gz,
             dataStruct.imuData.pressure, dataStruct.imuData.altitude, dataStruct.imuData.temperature,
-            (int) dataStruct.sdStatus, (int) dataStruct.imuStatus, (int) dataStruct.rocketState, (int) dataStruct.servoPosition);
+            (int) dataStruct.servoPosition, (int) dataStruct.rocketState, (int) dataStruct.airBrakeEjection,
+            (int) dataStruct.igniterState, (int) errors.sd_error, (int) errors.imu_error, (int) errors.rocketError);
 
     return String(dataFrame);
 }
@@ -37,10 +39,15 @@ void flightControlTask(void *arg){
 
         vTaskDelay(1 / portTICK_PERIOD_MS);
     }
+    
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
 
     servo.write(servoClosePosition); //close servo after parachute deploy
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    dataStruct.airBrakeEjection = 0;
+
     digitalWrite(igniterPin, LOW);
+    dataStruct.igniterState = 0;
+    
     vTaskDelete(NULL);  //Close task
 }
 

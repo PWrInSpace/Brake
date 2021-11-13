@@ -17,9 +17,6 @@ enum State{
 
 struct DataStruct{
     ImuData imuData;
-
-    SDError sdStatus;
-    IMUError imuStatus;
     
     State rocketState = LAUNCHPAD;
     

@@ -9,11 +9,11 @@
 
 extern Errors errors;
 
-constexpr uint8_t AccReg[4] = {(0<<2), (1<<3), (1<<3) | (1<<2), (1<<2)};
-constexpr float AccFactor[4] = {0.061, 0.122, 0.244, 0.488};
-constexpr uint8_t GyroReg[4] = {};
-constexpr uint8_t bandwithReg[4] = {(1<<1) | (1<<0), (1<<1), (1<<0), (0<<0)};
-
+const uint8_t accReg[4] = {(0<<2), (1<<3), (1<<3) | (1<<2), (1<<2)};
+const float accFactor[4] = {0.061, 0.122, 0.244, 0.488};
+const uint8_t gyroReg[4] = {(0<<3), (1<<3), (1<<4), (1<<4) | (1<<3)};
+const float gyroFactor[4] = {8.75, 17.50, 35.0, 70.0};
+const uint8_t bandwithReg[4] = {(1<<1) | (1<<0), (1<<1), (1<<0), (0<<0)};
 
 class ImuAPI{
     LSM6 imu;
@@ -24,21 +24,26 @@ class ImuAPI{
     float initPressure;
     Bandwith bandwith;
     AccelerometerScale accScale;
-    GyroscpoeScale gyrScale;
+    GyroscpoeScale gyroScale;
 
     public:
-    ImuAPI(GyroscpoeScale _gyrScale = GyroscpoeScale::G_245dps, 
-            AccelerometerScale _accScale = AccelerometerScale::A_2g,
+    ImuAPI( AccelerometerScale _accScale = AccelerometerScale::A_2g,
+            GyroscpoeScale _gyrScale = GyroscpoeScale::G_245dps,
             Bandwith _bandwith = Bandwith::B_400Hz);
     bool begin();
-    void setInitPressure();
+    bool setInitPressure();
     void readRawData();
     String getRawData();
+    String getData();
     ImuData getRawDataStruct();
+    ImuData getDataStruct();
     float getAltitude();
     
     private:
+    ImuData createCountedData();
+    String createDataReport(ImuData reportData);
     void LSM6SetReg();
+
 };
 
 

@@ -5,6 +5,7 @@
 enum IMUError{
     IMU_NOERROR = 0,
     IMU_INIT_ERROR,
+    IMU_PRESSURE_ERROR,
     IMU_READ_ERROR,
 };
 
