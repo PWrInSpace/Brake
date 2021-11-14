@@ -53,7 +53,7 @@ void loop()
     dataStruct.imuData = IMU.getRawDataStruct();
     Serial.println(createDataFrame("RAW")); //debug
     queue.push(createDataFrame("RAW"));
-    dataCalc.imuData = IMU.getDataStruct();
+    dataStruct.imuData = IMU.getDataStruct();
     Serial.println(createDataFrame("CLC")); //debug
     queue.push(createDataFrame("CLC"));
   }

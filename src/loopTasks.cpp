@@ -40,11 +40,11 @@ void SDTask(void *arg) {
             digitalWrite(onBoardLed, HIGH);
             
             switch(dataFrame[0]){
-                case "R":
+                case 'R':
                     path = "/Brake_raw_data.txt";
                     break;
-                case "C":
-                    path = "/Break_data.txt"
+                case 'C':
+                    path = "/Break_data.txt";
                     break;
                 default:
                     errors.sd_error = SD_WRITE_ERROR;
@@ -62,7 +62,7 @@ void SDTask(void *arg) {
         }
         isSaving = false;
         digitalWrite(onBoardLed, LOW);
-        
+
         vTaskDelay(2000 / portTICK_PERIOD_MS);
     }
 }
