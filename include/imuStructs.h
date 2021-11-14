@@ -2,21 +2,42 @@
 #define IMUSTRUCTS_HH
 #include <stdint.h>
 
+template <typename T>
 struct ImuData{
     //Gyroscope
-    int16_t gx;
-    int16_t gy;
-    int16_t gz;
-
+    T gx;
+    T gy;
+    T gz;
     //Accelerometer
-    int16_t ax;
-    int16_t az;
-    int16_t ay;
+    T ax;
+    T ay;
+    T az;
     
     int8_t temperature;
     float pressure;
     float altitude;
+
+    explicit operator ImuData<float>(){
+        ImuData<float> x;
+        x.gx = gx;
+        x.gy = gy;
+        x.gz = gz;
+
+        x.ax = ax;
+        x.ay = ay;
+        x.az = az;
+
+        x.temperature = temperature;
+        x.pressure = pressure;
+        x.altitude = altitude;
+
+        return x;
+    }
 };
+
+template struct ImuData<int16_t>;
+template struct ImuData<float>;
+
 
 enum AccelerometerScale{
     A_2g = 0,

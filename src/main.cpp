@@ -16,7 +16,7 @@ bool isSaving;
 
 char report[80];
 
-ImuAPI IMU;
+ImuAPI IMU(AccelerometerScale::A_16g, GyroscpoeScale::G_1000dps);
 
 void setup()
 {
@@ -35,7 +35,11 @@ void setup()
     errors.imu_error = IMU_INIT_ERROR;
     while(1){delay(100);}
   }
-  IMU.setInitPressure();  //Sprawdzać czy nie dało jakiejś wartości dziwnej +- 5 hpa od tego co przyszło
+  
+  if(!IMU.setInitPressure()){
+    errors.imu_error = IMU_PRESSURE_ERROR;
+  }
+
   dataStruct.rocketState = LAUNCHPAD;
   //delay(1000);
 }
@@ -50,7 +54,7 @@ void loop()
 
     String data = createDataFrame(); 
     //Serial.println(data + String("    main"));
-    
+    Serial.println(IMU.getData());
     queue.push(createDataFrame());
   }
  

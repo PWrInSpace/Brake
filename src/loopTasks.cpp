@@ -23,7 +23,8 @@ void SDTask(void *arg) {
         while(1){vTaskDelay(1 / portTICK_PERIOD_MS);}
     }
     
-    if(!SD_write("/Brake_data.txt", "a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature; SD error, Imu error, Rocket State, servo\n"));
+    SD_write("/Brake_data.txt", "a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature; servo position; \\
+                    Rocket state, Air brake state, IgniterState, SD error, Imu error, Rocket error\n");
 
     while(1) {
         Serial.println(queue.getNumberOfElements());
@@ -31,7 +32,7 @@ void SDTask(void *arg) {
             isSaving = true;
             String dataFrame = queue.pop() + "\n";
 
-            digitalWrite(onBoardLed, HIGH);  //???
+            digitalWrite(onBoardLed, HIGH);
             //Serial.println(dataFrame + String("    sd")); // Dla debugu
             
             if(!SD_write("/Brake_data.txt", dataFrame)){
@@ -81,10 +82,11 @@ void stateTask(void *arg){
     pinMode(igniterPin, OUTPUT);
     digitalWrite(igniterPin, LOW);
 
+    //debug
     if(digitalRead(liftOffDetector) == 0){
-        Serial.println("Jest 1");
-    }else{
         Serial.println("Jest 0");
+    }else{
+        Serial.println("Jest 1");
     }
 
     //chyba coś jeszcze 
@@ -118,12 +120,15 @@ void stateTask(void *arg){
         }else if(dataStruct.rocketState == FLIGHT && dataStruct.airBrakeEjection != 0){
             dataStruct.rocketState = AIRBRAKEON;
             Serial.println("AIRBRAKE");
+ 
         }else if(dataStruct.rocketState == AIRBRAKEON && dataStruct.igniterState != 0){
             dataStruct.rocketState = LANDING;
             Serial.println("LAnDING");
+ 
         }else if(dataStruct.rocketState == LANDING && dataStruct.imuData.altitude < 100.0){
             dataStruct.rocketState = ONGROUND;
             Serial.println("On ground");
+ 
         }
         vTaskDelay(2 / portTICK_PERIOD_MS);
     }

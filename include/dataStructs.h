@@ -15,11 +15,9 @@ enum State{
     ONGROUND,
 };
 
-struct DataStruct{
-    ImuData imuData;
 
-    SDError sdStatus;
-    IMUError imuStatus;
+struct DataStruct{
+    ImuData<int16_t> imuData;
     
     State rocketState = LAUNCHPAD;
     
