@@ -34,7 +34,6 @@ bool ImuAPI::begin(){
     return true;
 }
 
-//TO DO: change too low pass filter
 bool ImuAPI::setInitPressure(){
     float press = 0;
 
@@ -68,24 +67,25 @@ void ImuAPI::readRawData(){
     data.altitude = ps.pressureToAltitudeMeters(data.pressure, initPressure);
 }
 
-String ImuAPI::createDataReport(ImuData reportData){
+template <typename T>
+String ImuAPI::createDataReport(ImuData<T> reportData){
     char report[100];
-    snprintf(report, sizeof(report), "%6d;%6d;%6d;%6d;%6d;%6d;%6f;%6f;%2d",
-            reportData.ax, reportData.ay, reportData.az,
-            reportData.gx, reportData.gy, reportData.gz,
+    snprintf(report, sizeof(report), "%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%2d",
+            (float)reportData.ax, (float)reportData.ay, (float)reportData.az,
+            (float)reportData.gx, (float)reportData.gy, (float)reportData.gz,
             reportData.pressure, reportData.altitude, reportData.temperature);
     return String(report);
 }
 
-ImuData ImuAPI::createCountedData(){
-    ImuData countedData = this->data;
-    countedData.ax *= accFactor[accScale];
-    countedData.ay *= accFactor[accScale];
-    countedData.az *= accFactor[accScale];
+ImuData<float> ImuAPI::createCountedData(){
+    ImuData<float> countedData = static_cast<ImuData<float>>(this->data);
+    countedData.ax *= accFactor[accScale] / 1000.0;
+    countedData.ay *= accFactor[accScale] / 1000.0;
+    countedData.az *= accFactor[accScale] / 1000.0;
 
-    countedData.gx *= gyroFactor[gyroScale];
-    countedData.gy *= gyroFactor[gyroScale];
-    countedData.gz *= gyroFactor[gyroScale];
+    countedData.gx *= gyroFactor[gyroScale] / 1000.0;
+    countedData.gy *= gyroFactor[gyroScale] / 1000.0;
+    countedData.gz *= gyroFactor[gyroScale] / 1000.0;
     
     return countedData;
 } 
@@ -98,11 +98,11 @@ String ImuAPI::getData(){
     return createDataReport(this->createCountedData());
 }
 
-ImuData ImuAPI::getRawDataStruct(){
+ImuData<int16_t> ImuAPI::getRawDataStruct(){
     return data;
 }
 
-ImuData ImuAPI::getDataStruct(){
+ImuData<float> ImuAPI::getDataStruct(){
     return this->createCountedData();
 }
 
