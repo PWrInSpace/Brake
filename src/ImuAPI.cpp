@@ -67,18 +67,17 @@ void ImuAPI::readRawData(){
     data.altitude = ps.pressureToAltitudeMeters(data.pressure, initPressure);
 }
 
-template <typename T>
-String ImuAPI::createDataReport(ImuData<T> reportData){
+String ImuAPI::createDataReport(ImuData reportData){
     char report[100];
     snprintf(report, sizeof(report), "%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%2d",
-            (float)reportData.ax, (float)reportData.ay, (float)reportData.az,
-            (float)reportData.gx, (float)reportData.gy, (float)reportData.gz,
+            reportData.ax, reportData.ay, reportData.az,
+            reportData.gx, reportData.gy, reportData.gz,
             reportData.pressure, reportData.altitude, reportData.temperature);
     return String(report);
 }
 
-ImuData<float> ImuAPI::createCountedData(){
-    ImuData<float> countedData = static_cast<ImuData<float>>(this->data);
+ImuData ImuAPI::createCountedData(){
+    ImuData countedData = this->data;
     countedData.ax *= accFactor[accScale] / 1000.0;
     countedData.ay *= accFactor[accScale] / 1000.0;
     countedData.az *= accFactor[accScale] / 1000.0;
@@ -98,11 +97,11 @@ String ImuAPI::getData(){
     return createDataReport(this->createCountedData());
 }
 
-ImuData<int16_t> ImuAPI::getRawDataStruct(){
+ImuData ImuAPI::getRawDataStruct(){
     return data;
 }
 
-ImuData<float> ImuAPI::getDataStruct(){
+ImuData ImuAPI::getDataStruct(){
     return this->createCountedData();
 }
 

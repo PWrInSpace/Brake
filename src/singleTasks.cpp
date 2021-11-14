@@ -5,11 +5,11 @@ extern DataStruct dataStruct;
 extern Servo servo;
 extern Errors errors;
 
-String createDataFrame(){
+String createDataFrame(char* pre){
     char dataFrame[200];
 
-    snprintf(dataFrame, sizeof(dataFrame), "%6d; %6d; %6d; %6d; %6d; %6d; %6f; %6f; %2d; %3d; %d; %d; %d; %d; %d; %d;",
-            dataStruct.imuData.ax, dataStruct.imuData.ay, dataStruct.imuData.az,
+    snprintf(dataFrame, sizeof(dataFrame), "%s; %6f; %6f; %6f; %6f; %6f; %6f; %6f; %6f; %2d; %3d; %d; %d; %d; %d; %d; %d;",
+            pre, dataStruct.imuData.ax, dataStruct.imuData.ay, dataStruct.imuData.az,
             dataStruct.imuData.gx, dataStruct.imuData.gy, dataStruct.imuData.gz,
             dataStruct.imuData.pressure, dataStruct.imuData.altitude, dataStruct.imuData.temperature,
             (int) dataStruct.servoPosition, (int) dataStruct.rocketState, (int) dataStruct.airBrakeEjection,
@@ -27,13 +27,14 @@ void flightControlTask(void *arg){
 
     while(work){
         if((breakEjectionTime < millis() - timer) && (dataStruct.airBrakeEjection == 0)){
-            dataStruct.airBrakeEjection = 1;
             servo.write(servoOpenPostion);
+            dataStruct.airBrakeEjection = 1;
+            dataStruct.servoPosition = servoOpenPostion;
         }
         
         if((deployRecoveryTime < millis() - timer)){
-            digitalWrite(igniterPin, HIGH);
             dataStruct.igniterState = 1;
+            digitalWrite(igniterPin, dataStruct.igniterState);
             work = false;
         }
 
@@ -44,9 +45,10 @@ void flightControlTask(void *arg){
 
     servo.write(servoClosePosition); //close servo after parachute deploy
     dataStruct.airBrakeEjection = 0;
+    dataStruct.servoPosition = servoClosePosition;
 
-    digitalWrite(igniterPin, LOW);
     dataStruct.igniterState = 0;
+    digitalWrite(igniterPin, dataStruct.igniterState);
     
     vTaskDelete(NULL);  //Close task
 }

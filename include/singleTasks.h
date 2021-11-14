@@ -9,7 +9,7 @@
 const uint8_t servoClosePosition = 0;
 const uint8_t servoOpenPostion = 100;
 
-String createDataFrame();
+String createDataFrame(char* pre);
 
 void flightControlTask(void *arg);
 

@@ -20,7 +20,7 @@ class ImuAPI{
     LPS ps;
     LIS3MDL mag;
 
-    ImuData<int16_t> data;
+    ImuData data;
     float initPressure;
     Bandwith bandwith;
     AccelerometerScale accScale;
@@ -35,17 +35,13 @@ class ImuAPI{
     void readRawData();
     String getRawData();
     String getData();
-    ImuData<int16_t> getRawDataStruct();
-    ImuData<float> getDataStruct();
+    ImuData getRawDataStruct();
+    ImuData getDataStruct();
     float getAltitude();
     
     private:
-    ImuData<float> createCountedData();
+    ImuData createCountedData();
     void LSM6SetReg();
-    template<typename T>
-    String createDataReport(ImuData<T> reportData);
+    String createDataReport(ImuData reportData);
 };
-
-String createDataReport(ImuData<int16_t> reportData);
-String createDataReport(ImuData<float> reportData);
 #endif
