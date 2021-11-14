@@ -22,29 +22,47 @@ void SDTask(void *arg) {
         errors.sd_error = SD_INIT_ERROR;
         while(1){vTaskDelay(1 / portTICK_PERIOD_MS);}
     }
+
+    //raw data
+    SD_write("/Brake_raw_data.txt", "a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature; servo position; \\
+                    Rocket state, Air brake state, IgniterState, SD error, Imu error, Rocket error\n");
     
+    //calcualted data
     SD_write("/Brake_data.txt", "a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature; servo position; \\
                     Rocket state, Air brake state, IgniterState, SD error, Imu error, Rocket error\n");
-
     while(1) {
-        Serial.println(queue.getNumberOfElements());
+        //Serial.println(queue.getNumberOfElements()); //debug
         while(queue.getNumberOfElements()){
+            String path;
             isSaving = true;
             String dataFrame = queue.pop() + "\n";
 
             digitalWrite(onBoardLed, HIGH);
-            //Serial.println(dataFrame + String("    sd")); // Dla debugu
             
-            if(!SD_write("/Brake_data.txt", dataFrame)){
+            switch(dataFrame[0]){
+                case "R":
+                    path = "/Brake_raw_data.txt";
+                    break;
+                case "C":
+                    path = "/Break_data.txt"
+                    break;
+                default:
+                    errors.sd_error = SD_WRITE_ERROR;
+            }
+
+            if(!SD_write(path, dataFrame)){
                 errors.sd_error = SD_WRITE_ERROR;
             }else{
                 errors.sd_error = SD_NOERROR;
             }
+    
+            //Serial.println(dataFrame + String("    sd")); // Dla debugu
         
             vTaskDelay(1 / portTICK_PERIOD_MS);
         }
         isSaving = false;
         digitalWrite(onBoardLed, LOW);
+        
         vTaskDelay(2000 / portTICK_PERIOD_MS);
     }
 }

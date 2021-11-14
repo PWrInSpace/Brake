@@ -54,13 +54,13 @@ bool ImuAPI::setInitPressure(){
 void ImuAPI::readRawData(){
     imu.read();
 
-    data.ax = imu.a.x;
-    data.ay = imu.a.y;
-    data.az = imu.a.z;
+    data.ax = static_cast<float>(imu.a.x);
+    data.ay = static_cast<float>(imu.a.y);
+    data.az = static_cast<float>(imu.a.z);
 
-    data.gx = imu.g.x;
-    data.gy = imu.g.y;
-    data.gz = imu.g.z;
+    data.gx = static_cast<float>(imu.g.x);
+    data.gy = static_cast<float>(imu.g.y);
+    data.gz = static_cast<float>(imu.g.z);
 
     data.pressure = ps.readPressureMillibars();
     data.temperature = ps.readTemperatureC();

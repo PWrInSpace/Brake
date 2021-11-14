@@ -11,7 +11,6 @@
 Errors errors;
 Queue queue;
 DataStruct dataStruct;
-DataStruct dataCalc;
 Servo servo;
 bool isSaving;
 
@@ -52,10 +51,10 @@ void loop()
 
     IMU.readRawData();
     dataStruct.imuData = IMU.getRawDataStruct();
-    dataCalc.imuData = IMU.getDataStruct();
-    String data = createDataFrame("RAW"); 
-    Serial.println(IMU.getData());
+    Serial.println(createDataFrame("RAW")); //debug
     queue.push(createDataFrame("RAW"));
+    dataCalc.imuData = IMU.getDataStruct();
+    Serial.println(createDataFrame("CLC")); //debug
     queue.push(createDataFrame("CLC"));
   }
  
