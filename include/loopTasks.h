@@ -18,4 +18,6 @@ void errorTask(void *arg);
 
 void stateTask(void *arg);
 
+void simulationTask(void *arg);
+
 #endif

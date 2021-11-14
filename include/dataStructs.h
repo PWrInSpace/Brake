@@ -19,6 +19,8 @@ struct DataStruct{
     ImuData imuData;
     
     State rocketState = LAUNCHPAD;
+
+    double simulationApogee;
     
     uint8_t servoPosition;
     uint8_t igniterState = 0;

@@ -24,11 +24,11 @@ void SDTask(void *arg) {
     }
 
     //raw data
-    SD_write("/Brake_raw_data.txt", "a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature; servo position; \\
+    SD_write("/Brake_raw_data.txt", "a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature; simulation apogee; servo position; \\
                     Rocket state, Air brake state, IgniterState, SD error, Imu error, Rocket error\n");
     
     //calcualted data
-    SD_write("/Brake_data.txt", "a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature; servo position; \\
+    SD_write("/Brake_data.txt", "a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature; Simulation apogee; servo position; \\
                     Rocket state, Air brake state, IgniterState, SD error, Imu error, Rocket error\n");
     while(1) {
         //Serial.println(queue.getNumberOfElements()); //debug
@@ -149,5 +149,13 @@ void stateTask(void *arg){
  
         }
         vTaskDelay(2 / portTICK_PERIOD_MS);
+    }
+}
+
+void simulationTask(void *arg){
+
+    while(1){
+        //dataStruct.simulationApogee =  zapis wyliczonego apeogeum do głównej struktury
+        vTaskDelay(1/ portTICK_PERIOD_MS);
     }
 }

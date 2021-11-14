@@ -25,9 +25,10 @@ void setup()
   
   isSaving = false;
 
-  xTaskCreate(stateTask, "state Task",    65536, NULL, 1, NULL);
-  xTaskCreate(SDTask,    "SD Task",      65536, NULL, 2, NULL);
-  xTaskCreate(errorTask, "error Task",   16384, NULL, 3, NULL);
+  xTaskCreate(stateTask,      "state Task",      65536, NULL, 1, NULL);
+  xTaskCreate(SDTask,         "SD Task",         65536, NULL, 2, NULL);
+  xTaskCreate(errorTask,      "error Task",      16384, NULL, 3, NULL);
+  //xTaskCreate(simulationTask, "simulation task", 65536, NULL, 4, NULL);
   
   servoInit();
 
