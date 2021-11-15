@@ -6,7 +6,7 @@
 #include "dataStructs.h"
 
 //Servo 
-const uint8_t servoClosePosition = 0;
+const uint8_t servoClosePosition = 10;
 const uint8_t servoOpenPostion = 100;
 
 String createDataFrame(char* pre);
