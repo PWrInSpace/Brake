@@ -14,6 +14,8 @@ void servoTask(void *arg);
 
 void SDTask(void *arg);
 
+void imuCalculationTask(void *arg);
+
 void errorTask(void *arg);
 
 void stateTask(void *arg);

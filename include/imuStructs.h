@@ -11,7 +11,12 @@ struct ImuData{
     float ax;
     float ay;
     float az;
-    
+
+    //magnetometer
+    float mx;
+    float my;
+    float mz;
+
     int8_t temperature;
     float pressure;
     float altitude;

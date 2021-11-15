@@ -20,6 +20,10 @@ ImuAPI IMU(AccelerometerScale::A_16g, GyroscpoeScale::G_1000dps);
 
 void setup()
 {
+  pinMode(liftOffDetector, INPUT);
+  pinMode(igniterPin, OUTPUT);
+  digitalWrite(igniterPin, LOW);
+  
   Serial.begin(115200);
   Wire.begin();
   
@@ -42,7 +46,6 @@ void setup()
   }
 
   dataStruct.rocketState = LAUNCHPAD;
-  //delay(1000);
 }
 
 void loop()

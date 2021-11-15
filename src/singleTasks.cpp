@@ -8,11 +8,12 @@ extern Errors errors;
 String createDataFrame(char* pre){
     char dataFrame[200];
 
-    snprintf(dataFrame, sizeof(dataFrame), "%s; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %2d; %0.3f; %3d; %d; %d; %d; %d; %d; %d;",
-            pre, dataStruct.imuData.ax, dataStruct.imuData.ay, dataStruct.imuData.az,
+    snprintf(dataFrame, sizeof(dataFrame), "%s; %d; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %2d; %0.3f; %3d; %d; %d; %d; %d; %d; %d;",
+            pre, millis() ,dataStruct.imuData.ax, dataStruct.imuData.ay, dataStruct.imuData.az,
             dataStruct.imuData.gx, dataStruct.imuData.gy, dataStruct.imuData.gz,
-            dataStruct.imuData.pressure, dataStruct.imuData.altitude, dataStruct.imuData.temperature, dataStruct.simulationApogee,
-            (int) dataStruct.servoPosition, (int) dataStruct.rocketState, (int) dataStruct.airBrakeEjection,
+            dataStruct.imuData.mx, dataStruct.imuData.my, dataStruct.imuData.mz,
+            dataStruct.imuData.pressure, dataStruct.imuData.altitude, dataStruct.imuData.temperature, 
+            dataStruct.simulationApogee, (int) dataStruct.servoPosition, (int) dataStruct.rocketState, (int) dataStruct.airBrakeEjection,
             (int) dataStruct.igniterState, (int) errors.sd_error, (int) errors.imu_error, (int) errors.rocketError);
 
     return String(dataFrame);

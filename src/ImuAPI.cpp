@@ -53,6 +53,7 @@ bool ImuAPI::setInitPressure(){
 
 void ImuAPI::readRawData(){
     imu.read();
+    mag.read();
 
     data.ax = static_cast<float>(imu.a.x);
     data.ay = static_cast<float>(imu.a.y);
@@ -62,6 +63,10 @@ void ImuAPI::readRawData(){
     data.gy = static_cast<float>(imu.g.y);
     data.gz = static_cast<float>(imu.g.z);
 
+    data.mx = static_cast<float>(mag.m.x);
+    data.my = static_cast<float>(mag.m.y);
+    data.mz = static_cast<float>(mag.m.z);
+
     data.pressure = ps.readPressureMillibars();
     data.temperature = ps.readTemperatureC();
     data.altitude = ps.pressureToAltitudeMeters(data.pressure, initPressure);
@@ -69,9 +74,10 @@ void ImuAPI::readRawData(){
 
 String ImuAPI::createDataReport(ImuData reportData){
     char report[100];
-    snprintf(report, sizeof(report), "%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%2d",
+    snprintf(report, sizeof(report), "%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%2d",
             reportData.ax, reportData.ay, reportData.az,
             reportData.gx, reportData.gy, reportData.gz,
+            reportData.mx, reportData.my, reportData.mz,
             reportData.pressure, reportData.altitude, reportData.temperature);
     return String(report);
 }
@@ -85,6 +91,10 @@ ImuData ImuAPI::createCountedData(){
     countedData.gx *= gyroFactor[gyroScale] / 1000.0;
     countedData.gy *= gyroFactor[gyroScale] / 1000.0;
     countedData.gz *= gyroFactor[gyroScale] / 1000.0;
+
+    countedData.mx /= 6842.0;
+    countedData.my /= 6842.0;
+    countedData.mz /= 6842.0;
     
     return countedData;
 } 

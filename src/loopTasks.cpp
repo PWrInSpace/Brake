@@ -6,6 +6,27 @@ extern DataStruct dataStruct;
 extern ImuAPI IMU;
 extern bool isSaving;
 
+void imuCalcuationsTask(void *arg){
+    float maxAltitude = 0;
+    float currentAltitude = 0;
+    uint64_t timer = millis();
+    uint16_t apogeeConfirmTime = 2000; //ms
+    
+    /*
+    while(1){
+        currentAltitude = dataStruct.imuData.altitude;
+
+        if(maxAltitude < currentAltitude){
+            maxAltitude = currentAltitude;
+            timer = millis();
+        }
+
+        if(timer - millis() > apogeConfirmTime){
+
+        }
+    }
+    */
+}
 
 void SDTask(void *arg) {
     vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -24,12 +45,11 @@ void SDTask(void *arg) {
     }
 
     //raw data
-    SD_write("/Brake_raw_data.txt", "a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature; simulation apogee; servo position; \\
-                    Rocket state, Air brake state, IgniterState, SD error, Imu error, Rocket error\n");
+    SD_write("/Brake_raw_data.txt", "RAW; a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature; simulation apogee; servo position; Rocket state; Air brake state; IgniterState; SD error; Imu error; Rocket error;\n");
     
     //calcualted data
-    SD_write("/Brake_data.txt", "a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature; Simulation apogee; servo position; \\
-                    Rocket state, Air brake state, IgniterState, SD error, Imu error, Rocket error\n");
+    SD_write("/Brake_data.txt", "CLC; a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature; Simulation apogee; servo position; Rocket state; Air brake state; IgniterState; SD error; Imu error; Rocket error;\n");
+    
     while(1) {
         //Serial.println(queue.getNumberOfElements()); //debug
         while(queue.getNumberOfElements()){
@@ -44,7 +64,7 @@ void SDTask(void *arg) {
                     path = "/Brake_raw_data.txt";
                     break;
                 case 'C':
-                    path = "/Break_data.txt";
+                    path = "/Brake_data.txt";
                     break;
                 default:
                     errors.sd_error = SD_WRITE_ERROR;
@@ -96,10 +116,6 @@ void errorTask(void *arg){
  *  
  */
 void stateTask(void *arg){
-    pinMode(liftOffDetector, INPUT);
-    pinMode(igniterPin, OUTPUT);
-    digitalWrite(igniterPin, LOW);
-
     //debug
     if(digitalRead(liftOffDetector) == 0){
         Serial.println("Jest 0");
@@ -130,7 +146,7 @@ void stateTask(void *arg){
     }
 
     while(1){
-        if((dataStruct.rocketState == LAUNCHPAD) && (digitalRead(liftOffDetector) == 0)){
+        if((dataStruct.rocketState == LAUNCHPAD) && ((digitalRead(liftOffDetector) == 0) || dataStruct.imuData.altitude > 100)){
             dataStruct.rocketState = FLIGHT;
             Serial.println("FLIGHT");
             xTaskCreate(flightControlTask, "flight control task", 16384, NULL, 1, NULL); 
