@@ -12,10 +12,7 @@ Errors errors;
 Queue queue;
 DataStruct dataStruct;
 Servo servo;
-bool isSaving;
-
-char report[80];
-
+SDCard sdCard(GPIO_NUM_25, GPIO_NUM_27, GPIO_NUM_26, GPIO_NUM_33);
 ImuAPI IMU(AccelerometerScale::A_16g, GyroscpoeScale::G_1000dps);
 
 void setup()
@@ -26,8 +23,6 @@ void setup()
   
   Serial.begin(115200);
   Wire.begin();
-  
-  isSaving = false;
 
   xTaskCreate(stateTask,      "state Task",      65536, NULL, 1, NULL);
   xTaskCreate(SDTask,         "SD Task",         65536, NULL, 2, NULL);
@@ -35,6 +30,11 @@ void setup()
   //xTaskCreate(simulationTask, "simulation task", 65536, NULL, 4, NULL);
   
   servoInit();
+  
+  if(!sdCard.init()){
+    errors.sd_error = SD_INIT_ERROR;
+    while(1){delay(100);}
+  }
 
   if(!IMU.begin()){
     errors.imu_error = IMU_INIT_ERROR;
@@ -51,15 +51,15 @@ void setup()
 void loop()
 {  
   delay(50);
-  if(!isSaving){
 
-    IMU.readRawData();
-    dataStruct.imuData = IMU.getRawDataStruct();
-    Serial.println(createDataFrame("RAW")); //debug
-    queue.push(createDataFrame("RAW"));
-    dataStruct.imuData = IMU.getDataStruct();
-    Serial.println(createDataFrame("CLC")); //debug
-    queue.push(createDataFrame("CLC"));
-  }
- 
+  IMU.readRawData();
+  dataStruct.imuData = IMU.getRawDataStruct();
+  sdCard.write(rawPath, createDataFrame("RAW"));
+  
+  Serial.println(createDataFrame("RAW")); //debug
+  
+  dataStruct.imuData = IMU.getDataStruct();
+  sdCard.write(clcPath, createDataFrame("CLC"));
+  
+  Serial.println(createDataFrame("CLC")); //debug
 }
