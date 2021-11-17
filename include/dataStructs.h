@@ -25,6 +25,7 @@ struct DataStruct{
     uint8_t servoPosition;
     uint8_t igniterState = 0;
     uint8_t airBrakeEjection = 0;
+    uint8_t kalmanRoll = 0;
 };
 
 #endif

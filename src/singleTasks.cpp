@@ -21,8 +21,8 @@ String createDataFrame(char* pre){
 
 void flightControlTask(void *arg){
     const uint32_t timer = millis();
-    const uint32_t breakEjectionTime = 1000;
-    const uint32_t deployRecoveryTime = 2000;
+    const uint32_t breakEjectionTime = 5000;
+    const uint32_t deployRecoveryTime = 10000;
     bool work = true;
     
 

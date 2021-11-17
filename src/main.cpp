@@ -7,6 +7,7 @@
 #include "loopTasks.h"
 #include "singleTasks.h"
 #include "imuAPI.h"
+#include "KalmanFilter.h"
 
 Errors errors;
 Queue queue;
@@ -14,13 +15,10 @@ DataStruct dataStruct;
 Servo servo;
 SDCard sdCard(GPIO_NUM_25, GPIO_NUM_27, GPIO_NUM_26, GPIO_NUM_33);
 ImuAPI IMU(AccelerometerScale::A_16g, GyroscpoeScale::G_1000dps);
+KalmanFilter filter(0.001, 0.003, 0.03);
 
 void setup()
 {
-  pinMode(liftOffDetector, INPUT);
-  pinMode(igniterPin, OUTPUT);
-  digitalWrite(igniterPin, LOW);
-  
   Serial.begin(115200);
   Wire.begin();
 
@@ -46,6 +44,7 @@ void setup()
   }
 
   dataStruct.rocketState = LAUNCHPAD;
+  //delay(1000);
 }
 
 void loop()
@@ -62,4 +61,7 @@ void loop()
   sdCard.write(clcPath, createDataFrame("CLC"));
   
   Serial.println(createDataFrame("CLC")); //debug
+
+  dataStruct.kalmanRoll = filter.update(atan2(dataStruct.imuData.ax * 9.81, dataStruct.imuData.ay * 9.81) * 180 / PI, dataStruct.imuData.gz);
+ 
 }
