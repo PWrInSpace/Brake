@@ -30,20 +30,7 @@ void imuCalcuationsTask(void *arg){
 
 void SDTask(void *arg) {
     vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-    uint8_t onBoardLed = 2;
-    pinMode(onBoardLed, OUTPUT);
-    digitalWrite(onBoardLed, LOW);
-
-    SPIClass SPISD(HSPI);
-    SPISD.begin(GPIO_NUM_26, GPIO_NUM_27, GPIO_NUM_25);
-    SPI.setClockDivider(SPI_CLOCK_DIV2);
-    
-    if(!SD.begin(SD_CS, SPISD)){
-        errors.sd_error = SD_INIT_ERROR;
-        while(1){vTaskDelay(1 / portTICK_PERIOD_MS);}
-    }
-
+    /*
     //raw data
     SD_write("/Brake_raw_data.txt", "RAW; a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature; simulation apogee; servo position; Rocket state; Air brake state; IgniterState; SD error; Imu error; Rocket error;\n");
     
@@ -56,8 +43,6 @@ void SDTask(void *arg) {
             String path;
             isSaving = true;
             String dataFrame = queue.pop() + "\n";
-
-            digitalWrite(onBoardLed, HIGH);
             
             switch(dataFrame[0]){
                 case 'R':
@@ -81,10 +66,10 @@ void SDTask(void *arg) {
             vTaskDelay(1 / portTICK_PERIOD_MS);
         }
         isSaving = false;
-        digitalWrite(onBoardLed, LOW);
 
         vTaskDelay(2000 / portTICK_PERIOD_MS);
     }
+    */
 }
 
 //Simple error handling
@@ -112,7 +97,7 @@ void errorTask(void *arg){
 
 /**
  * Czy wyłączyć airBrake jeżeli igniter się nie odpali?
- * 
+ * bo 30s
  *  
  */
 void stateTask(void *arg){

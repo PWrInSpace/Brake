@@ -7,8 +7,21 @@
 #include "queue.h"
 #include "dataStructs.h"
 
-#define SD_CS 33
+//uint8_t boardLed = 2;
 
-bool SD_write(const String & file, const String & data);
+const String rawPath;
+const String clcPath;
+
+class SDCard{
+    uint8_t mosi;
+    uint8_t miso; 
+    uint8_t sck;
+    uint8_t cs;
+
+    public:
+    SDCard(uint8_t _mosi, uint8_t miso, uint8_t _sck, uint8_t _cs);
+    bool init();
+    bool write(const String & path, const String & data); 
+};
 
 #endif
