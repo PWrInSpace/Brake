@@ -45,8 +45,9 @@ void setup()
     }
   }
 
-  if (!IMU.begin())
-  {
+  sdCard.write("/Brake_clc.txt", "CLC; Time; ax; ay; az; gx; gy; gz; mx; my; mz; pressure; altitude; temperature; kalman; simulationApogee; servo postiton; rocketState, air brake status, igniter status, apogee detection status, sd error, imu error, rocket error");
+
+  if(!IMU.begin()){
     errors.imu_error = IMU_INIT_ERROR;
     while (1)
     {
@@ -66,7 +67,6 @@ void setup()
   delay(1000);
 
   xTaskCreate(stateTask, "state Task", 32768, NULL, 1, NULL);
-  
 }
 
 void loop()
@@ -78,11 +78,11 @@ void loop()
   //dataStruct.imuData = IMU.getRawDataStruct();
   //sdWriteStatus = sdCard.write("/Brake_raw.txt", createDataFrame("RAW"));
   //Serial.println(createDataFrame("RAW")); //debug
-
-  dataStruct.kalmanRoll = filter.update(atan2(dataStruct.imuData.ax * 9.81, dataStruct.imuData.ay * 9.81) * 180 / PI, dataStruct.imuData.gz);
+  
+  //dataStruct.kalmanRoll = filter.update(atan2(dataStruct.imuData.ax * 9.81, dataStruct.imuData.ay * 9.81) * 180 / PI, dataStruct.imuData.gz);
   dataStruct.imuData = IMU.getDataStruct();
-  sdWriteStatus &= sdCard.write("/Brake_clc.txt", createDataFrame("CLC"));
-
+  sdWriteStatus = sdCard.write("/Brake_clc.txt", createDataFrame("CLC"));
+  
   Serial.println(createDataFrame("CLC")); //debug
 
   sdWriteStatus ? errors.sd_error = SD_NOERROR : errors.sd_error = SD_WRITE_ERROR; //error handling
