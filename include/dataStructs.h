@@ -52,7 +52,9 @@ struct DataStruct{
     RocketStateSensors rss;
 
     double simulationApogee = 0; 
-    uint8_t kalmanRoll = 0;
+    double kalmanRoll = 0;
+
+    bool apogeeDetect = false;
 };
 
 #endif

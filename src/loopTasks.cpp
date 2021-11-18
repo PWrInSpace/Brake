@@ -5,27 +5,45 @@ extern Queue queue;
 extern DataStruct dataStruct;
 extern ImuAPI IMU;
 extern FlightTimer flightTimer;
+extern SDCard sdCard;
 
 void imuCalcuationsTask(void *arg){
     float maxAltitude = 0;
     float currentAltitude = 0;
-    uint64_t timer = flightTimer.getLiftOffTime();
-    uint16_t apogeeConfirmTime = 2000; //ms
-    Serial.println("task odpalony");
+    uint64_t apogeeTimer = 0;
+    const uint64_t apogeeConfirmTime = 500; //ms
+    const uint64_t igniterSafeTime = 15000;
+    const uint64_t timeout = 30000; //ms
+    bool apogeeAltitudeConfirm = false;
+    bool apogeeAccZConfirm = false;
+
     while(1){
         currentAltitude = dataStruct.imuData.altitude;
 
         if(maxAltitude < currentAltitude){
             maxAltitude = currentAltitude;
-            timer = millis();
+            apogeeTimer = milli();
         }
 
-        if(timer - millis() > apogeeConfirmTime){
-
+        if(dataStruct.imuData.az < 0.70){
+            appogeAccZConfirm = true;
         }
-        vTaskDelay(1/portTICK_PERIOD_MS);
+
+        if(apogeeTimer - millis() > apogeeConfirmTime){
+            apogeeAltitudeConfirm = true;
+        }
+
+        if((apogeeAltitudeConfirm && apogeeAccZConfirm) && flightTimer.getFlightTime > igniterSafeTime){
+            dataStruct.apogeeDetect = true;
+            sdCard.write("/Break_logs.txt", String(Sprintf("Apogee detected : %f; %f; %d; %d;", maxAltitude, flightTimer.getFlightTime, apogeeAltitudeConfirm, apogeeAccZConfirm)));
+            vTaskDelete(NULL);
+        }else if(flightTimer.getFlightTime > timeout){
+            sdCard.write("/Break_logs.txt", String(Sprintf("Apogee not detected : %f; %f; %d; %d;", maxAltitude, flightTimer.getFlightTime, apogeeAltitudeConfirm, apogeeAccZConfirm)));
+            vTaskDelete(NULL);
+        }
+
+        vTaskDelay(40/portTICK_PERIOD_MS);
     }
-    
 }
 
 
@@ -70,8 +88,9 @@ void stateTask(void *arg){
         if((dataStruct.rocketState == LAUNCHPAD) && ((digitalRead(liftOffDetector) == 0) || dataStruct.imuData.altitude > 100)){
             flightTimer.startTimer();
             dataStruct.rocketState = FLIGHT;
-            xTaskCreate(flightControlTask,  "flight control task",    16384, NULL, 1, NULL); 
-            xTaskCreate(imuCalcuationsTask, "imuC calculations task", 32768, NULL, 1, NULL);
+            xTaskCreate(flightControlTask,  "flight control task",    16384,  NULL, 1, NULL); 
+            xTaskCreate(imuCalcuationsTask, "imuC calculations task", 32768,  NULL, 1, NULL);
+            xTaskCreate(simulationTask,     "simulation Task",        65 536, NULL, 2, NULL);
             Serial.println("FLIGHT");
         
         }else if(dataStruct.rocketState == FLIGHT && dataStruct.rss.airBrakeEjection != 0){

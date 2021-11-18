@@ -52,7 +52,7 @@ void setup()
   
   delay(1000);
 
-  xTaskCreate(stateTask,      "state Task",      32768, NULL, 1, NULL);
+  xTaskCreate(stateTask, "state Task", 32768, NULL, 1, NULL);
 }
 
 void loop()

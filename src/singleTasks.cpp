@@ -8,7 +8,7 @@ extern Errors errors;
 String createDataFrame(char* pre){
     char dataFrame[200];
 
-    snprintf(dataFrame, sizeof(dataFrame), "%s; %lu; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %2d; %d; %0.3f; %3d; %d; %d; %d; %d; %d; %d;\n",
+    snprintf(dataFrame, sizeof(dataFrame), "%s; %lu; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %d; %0.3f; %3d; %d; %d; %d; %d; %d; %d;\n",
             pre, millis() ,dataStruct.imuData.ax, dataStruct.imuData.ay, dataStruct.imuData.az,
             dataStruct.imuData.gx, dataStruct.imuData.gy, dataStruct.imuData.gz,
             dataStruct.imuData.mx, dataStruct.imuData.my, dataStruct.imuData.mz,
@@ -20,20 +20,20 @@ String createDataFrame(char* pre){
 }
 
 void flightControlTask(void *arg){
-    const uint32_t timer = millis();
-    const uint32_t breakEjectionTime = 5000;
-    const uint32_t deployRecoveryTime = 10000;
+    const uint64_t breakEjectionTime = 10000;
+    const uint64_t deployRecoveryTimeout = 20000;
+    const uint64_t breakCloseTime = 30000; 
     bool work = true;
     
 
     while(work){
-        if((breakEjectionTime < millis() - timer) && (dataStruct.rss.airBrakeEjection == 0)){
+        if((breakEjectionTime < flightTimer.getFlightTime()) && (dataStruct.rss.airBrakeEjection == 0)){
             servo.write(servoOpenPostion);
             dataStruct.rss.airBrakeEjection = 1;
             dataStruct.rss.servoPosition = servoOpenPostion;
         }
         
-        if((deployRecoveryTime < millis() - timer)){
+        if(dataStruct.apogeeDetect || (deployRecoveryTimeout < flightTimer.getFlightTime())){
             dataStruct.rss.igniterState = 1;
             digitalWrite(igniterPin, dataStruct.rss.igniterState);
             work = false;
@@ -42,9 +42,10 @@ void flightControlTask(void *arg){
         vTaskDelay(1 / portTICK_PERIOD_MS);
     }
     
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    //close break at 30s +- 0.1s
+    while(flightTimer.getFlightTime() < breakCloseTime){vTaskDelay(100 / portTICK_PERIOD_MS);}  
 
-    servo.write(servoClosePosition); //close servo after parachute deploy
+    servo.write(servoClosePosition); 
     dataStruct.rss.airBrakeEjection = 0;
     dataStruct.rss.servoPosition = servoClosePosition;
 
