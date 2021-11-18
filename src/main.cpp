@@ -27,38 +27,50 @@ void setup()
 
   xTaskCreate(errorTask, "error Task", 8192, NULL, 3, NULL);
 
-  if(!dataStruct.rss.init()){
+  if (!dataStruct.rss.init())
+  {
     errors.rocketError = ROCKET_INIT_ERROR;
-    while(1){delay(100);}
+    while (1)
+    {
+      delay(100);
+    }
   }
-  
-  if(!sdCard.init()){
+
+  if (!sdCard.init())
+  {
     errors.sd_error = SD_INIT_ERROR;
-    while(1){delay(100);}
+    while (1)
+    {
+      delay(100);
+    }
   }
 
   sdCard.write("/Brake_clc.txt", "CLC; Time; ax; ay; az; gx; gy; gz; mx; my; mz; pressure; altitude; temperature; kalman; simulationApogee; servo postiton; rocketState, air brake status, igniter status, apogee detection status, sd error, imu error, rocket error");
 
   if(!IMU.begin()){
     errors.imu_error = IMU_INIT_ERROR;
-    while(1){delay(100);}
+    while (1)
+    {
+      delay(100);
+    }
   }
-  
-  if(!IMU.setInitPressure()){
+
+  if (!IMU.setInitPressure())
+  {
     errors.imu_error = IMU_PRESSURE_ERROR;
   }
-  
+
   servoInit();
 
   dataStruct.rocketState = LAUNCHPAD;
-  
+
   delay(1000);
 
   xTaskCreate(stateTask, "state Task", 32768, NULL, 1, NULL);
 }
 
 void loop()
-{  
+{
   bool sdWriteStatus = false;
   delay(20);
 
@@ -72,6 +84,6 @@ void loop()
   sdWriteStatus = sdCard.write("/Brake_clc.txt", createDataFrame("CLC"));
   
   Serial.println(createDataFrame("CLC")); //debug
-  
+
   sdWriteStatus ? errors.sd_error = SD_NOERROR : errors.sd_error = SD_WRITE_ERROR; //error handling
 }
