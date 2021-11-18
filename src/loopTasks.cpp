@@ -11,7 +11,7 @@ void imuCalcuationsTask(void *arg){
     float maxAltitude = 0;
     float currentAltitude = 0;
     uint64_t apogeeTimer = 0;
-    const uint64_t apogeeConfirmTime = 500; //ms
+    const uint64_t apogeeConfirmTime = 1000; //ms
     const uint64_t igniterSafeTime = 15000;
     const uint64_t timeout = 30000; //ms
     char log[80];
@@ -26,7 +26,7 @@ void imuCalcuationsTask(void *arg){
             apogeeTimer = millis();
         }
 
-        if(dataStruct.imuData.az < 0.70){
+        if(dataStruct.imuData.az < 0.40){
             apogeeAccZConfirm = true;
         }
 

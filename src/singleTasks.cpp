@@ -9,13 +9,14 @@ extern FlightTimer flightTimer;
 String createDataFrame(char* pre){
     char dataFrame[200];
 
-    snprintf(dataFrame, sizeof(dataFrame), "%s; %lu; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %d; %0.3f; %3d; %d; %d; %d; %d; %d; %d;\n",
+    snprintf(dataFrame, sizeof(dataFrame), "%s; %lu; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f;  %d; %0.3f; %0.3f; %3d; %d; %d; %d; %d; %d; %d; %d;\n",
             pre, millis() ,dataStruct.imuData.ax, dataStruct.imuData.ay, dataStruct.imuData.az,
             dataStruct.imuData.gx, dataStruct.imuData.gy, dataStruct.imuData.gz,
             dataStruct.imuData.mx, dataStruct.imuData.my, dataStruct.imuData.mz,
-            dataStruct.imuData.pressure, dataStruct.imuData.altitude, dataStruct.imuData.temperature, (int)dataStruct.kalmanRoll, 
-            dataStruct.simulationApogee, (int) dataStruct.rss.servoPosition, (int) dataStruct.rocketState, (int) dataStruct.rss.airBrakeEjection,
-            (int) dataStruct.rss.igniterState, (int) errors.sd_error, (int) errors.imu_error, (int) errors.rocketError);
+            dataStruct.imuData.pressure, dataStruct.imuData.altitude, dataStruct.imuData.temperature, 
+            dataStruct.kalmanRoll, dataStruct.simulationApogee, (int) dataStruct.rss.servoPosition, 
+            (int) dataStruct.rocketState,  (int) dataStruct.rss.airBrakeEjection, (int) dataStruct.rss.igniterState,
+            (int) dataStruct.apogeeDetect, (int) errors.sd_error, (int) errors.imu_error, (int) errors.rocketError);
 
     return String(dataFrame);
 }
