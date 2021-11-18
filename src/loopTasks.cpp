@@ -57,34 +57,16 @@ void errorTask(void *arg){
  *  
  */
 void stateTask(void *arg){
-    //debug
-    if(digitalRead(liftOffDetector) == 0){
-        Serial.println("Jest 0");
-    }else{
-        Serial.println("Jest 1");
-    }
-
-    //chyba coś jeszcze 
-    if(digitalRead(liftOffDetector) == 0){
-        Serial.println("Launch wire, detection error");   
-        errors.rocketError = ROCKET_LIFTOFFDETECTOR_ERROR;
-    
-    }else if(dataStruct.airBrakeEjection){
-        Serial.println("air brake ejection error");
-        errors.rocketError = ROCKET_AIRBRAKE_ERROR;
-
-    }else if(dataStruct.igniterState){
-        Serial.println("Wrong igniter state");
-        errors.rocketError = ROCKET_IGNITER_ERROR;        
-    
-    }else if(dataStruct.rocketState != LAUNCHPAD){
-        Serial.println("Invalid rocket state");
-        errors.rocketError = ROCKET_STATE_ERROR;
-    }
-
-    if(errors.rocketError != ROCKET_NOERROR){
+    if(!dataStruct.rss.successfulInit){
+        errors.rocketError = ROCKET_INIT_ERROR;
         while(1) {vTaskDelay(100 / portTICK_PERIOD_MS);}
     }
+
+    if(dataStruct.rocketState != LAUNCHPAD){
+        errors.rocketError = ROCKET_STATE_ERROR;
+        while(1) {vTaskDelay(100 / portTICK_PERIOD_MS);}
+    }
+
 
     while(1){
         if((dataStruct.rocketState == LAUNCHPAD) && ((digitalRead(liftOffDetector) == 0) || dataStruct.imuData.altitude > 100)){
@@ -92,11 +74,11 @@ void stateTask(void *arg){
             Serial.println("FLIGHT");
             xTaskCreate(flightControlTask, "flight control task", 16384, NULL, 1, NULL); 
 
-        }else if(dataStruct.rocketState == FLIGHT && dataStruct.airBrakeEjection != 0){
+        }else if(dataStruct.rocketState == FLIGHT && dataStruct.rss.airBrakeEjection != 0){
             dataStruct.rocketState = AIRBRAKEON;
             Serial.println("AIRBRAKE");
  
-        }else if(dataStruct.rocketState == AIRBRAKEON && dataStruct.igniterState != 0){
+        }else if(dataStruct.rocketState == AIRBRAKEON && dataStruct.rss.igniterState != 0){
             dataStruct.rocketState = LANDING;
             Serial.println("LAnDING");
  

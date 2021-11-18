@@ -8,13 +8,13 @@ extern Errors errors;
 String createDataFrame(char* pre){
     char dataFrame[200];
 
-    snprintf(dataFrame, sizeof(dataFrame), "%s; %d; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %2d; %0.3f; %3d; %d; %d; %d; %d; %d; %d;\n",
+    snprintf(dataFrame, sizeof(dataFrame), "%s; %lu; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %2d; %d; %0.3f; %3d; %d; %d; %d; %d; %d; %d;\n",
             pre, millis() ,dataStruct.imuData.ax, dataStruct.imuData.ay, dataStruct.imuData.az,
             dataStruct.imuData.gx, dataStruct.imuData.gy, dataStruct.imuData.gz,
             dataStruct.imuData.mx, dataStruct.imuData.my, dataStruct.imuData.mz,
-            dataStruct.imuData.pressure, dataStruct.imuData.altitude, dataStruct.imuData.temperature, 
-            dataStruct.simulationApogee, (int) dataStruct.servoPosition, (int) dataStruct.rocketState, (int) dataStruct.airBrakeEjection,
-            (int) dataStruct.igniterState, (int) errors.sd_error, (int) errors.imu_error, (int) errors.rocketError);
+            dataStruct.imuData.pressure, dataStruct.imuData.altitude, dataStruct.imuData.temperature, (int)dataStruct.kalmanRoll, 
+            dataStruct.simulationApogee, (int) dataStruct.rss.servoPosition, (int) dataStruct.rocketState, (int) dataStruct.rss.airBrakeEjection,
+            (int) dataStruct.rss.igniterState, (int) errors.sd_error, (int) errors.imu_error, (int) errors.rocketError);
 
     return String(dataFrame);
 }
@@ -27,15 +27,15 @@ void flightControlTask(void *arg){
     
 
     while(work){
-        if((breakEjectionTime < millis() - timer) && (dataStruct.airBrakeEjection == 0)){
+        if((breakEjectionTime < millis() - timer) && (dataStruct.rss.airBrakeEjection == 0)){
             servo.write(servoOpenPostion);
-            dataStruct.airBrakeEjection = 1;
-            dataStruct.servoPosition = servoOpenPostion;
+            dataStruct.rss.airBrakeEjection = 1;
+            dataStruct.rss.servoPosition = servoOpenPostion;
         }
         
         if((deployRecoveryTime < millis() - timer)){
-            dataStruct.igniterState = 1;
-            digitalWrite(igniterPin, dataStruct.igniterState);
+            dataStruct.rss.igniterState = 1;
+            digitalWrite(igniterPin, dataStruct.rss.igniterState);
             work = false;
         }
 
@@ -45,11 +45,11 @@ void flightControlTask(void *arg){
     vTaskDelay(2000 / portTICK_PERIOD_MS);
 
     servo.write(servoClosePosition); //close servo after parachute deploy
-    dataStruct.airBrakeEjection = 0;
-    dataStruct.servoPosition = servoClosePosition;
+    dataStruct.rss.airBrakeEjection = 0;
+    dataStruct.rss.servoPosition = servoClosePosition;
 
-    dataStruct.igniterState = 0;
-    digitalWrite(igniterPin, dataStruct.igniterState);
+    dataStruct.rss.igniterState = 0;
+    digitalWrite(igniterPin, dataStruct.rss.igniterState);
     
     vTaskDelete(NULL);  //Close task
 }

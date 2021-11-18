@@ -25,15 +25,15 @@ void setup()
 
   xTaskCreate(errorTask, "error Task", 8192, NULL, 3, NULL);
 
+  if(!dataStruct.rss.init()){
+    errors.rocketError = ROCKET_INIT_ERROR;
+    while(1){delay(100);}
+  }
+  
   if(!sdCard.init()){
-        errors.sd_error = SD_INIT_ERROR;
-        while (1)
-        {
-            vTaskDelay(100/portTICK_PERIOD_MS);
-        }
-    }
-
-  servoInit();
+    errors.sd_error = SD_INIT_ERROR;
+    while(1){delay(100);}
+  }
 
   if(!IMU.begin()){
     errors.imu_error = IMU_INIT_ERROR;
@@ -43,8 +43,11 @@ void setup()
   if(!IMU.setInitPressure()){
     errors.imu_error = IMU_PRESSURE_ERROR;
   }
+  
+  servoInit();
 
   dataStruct.rocketState = LAUNCHPAD;
+  
   delay(1000);
 
   xTaskCreate(stateTask,      "state Task",      32768, NULL, 1, NULL);
