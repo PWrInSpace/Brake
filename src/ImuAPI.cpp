@@ -36,11 +36,27 @@ bool ImuAPI::begin(){
 
 bool ImuAPI::setInitPressure(){
     float press = 0;
+    float tempPress = 0;
+    int measurement = 0;
 
     for(int i = 0; i<5; ++i){
-        press += ps.readPressureMillibars();
+        tempPress = ps.readPressureMillibars();
+        measurement++;
+
+        if(abs(1023 - tempPress) < 50){
+            press += tempPress;
+        }else{
+            i--;
+        }
+
+        if(measurement > 10){
+            initPressure = 1023;
+            return false;
+        }
+        
         delay(10);
     }
+    
     initPressure = press/5.0;
 
     if(ps.readPressureMillibars() - abs(initPressure) > 5){
