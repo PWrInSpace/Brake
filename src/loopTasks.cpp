@@ -416,7 +416,7 @@ void simulationTask(void *arg)
         0.385962092124162};
     RocketStruct rocket(rocketMass, propellantMass, thrustEndTime, stateAtStart, Cd);
     float tempVel;
-    float tempLastHeight = 0.0, tempNewHeight = 0.0;
+    float tempLastHeight = IMU.getAltitude(), tempNewHeight = 0.0;
     while (1)
     {
         tempVel = (tempNewHeight - tempLastHeight)/0.1;
