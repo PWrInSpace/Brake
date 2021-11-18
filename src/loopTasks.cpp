@@ -416,11 +416,11 @@ void simulationTask(void *arg)
         0.385962092124162};
     RocketStruct rocket(rocketMass, propellantMass, thrustEndTime, stateAtStart, Cd);
     float tempVel;
-    float tempLastHeight = IMU.getAltitude(), tempNewHeight = 0.0;
+    float tempLastHeight = IMU.getAltitude(), tempNewHeight = IMU.getAltitude();
     while (1)
     {
-        tempVel = (tempNewHeight - tempLastHeight)/0.1;
-        simStart += 0.1;
+        tempVel = (tempNewHeight - tempLastHeight)/0.07;
+        simStart += 0.07;
         tempLastHeight = tempNewHeight;
         tempNewHeight = IMU.getAltitude();
         dataStruct.simulationApogee =  rocket.apogeeSimulation(tempNewHeight, tempLastHeight, tempVel, simStart);

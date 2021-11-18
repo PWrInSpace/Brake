@@ -54,8 +54,7 @@ float RocketStruct::apogeeSimulation(float currentHeight, float lastHeight, floa
     rocketState.simTime = time_s;
 
     bool apogeeAchieved = 0;
-    float simStartTime = rocketState.simTime;
-    int p = 0;
+    //float simStartTime = rocketState.simTime;
     calculateAllMass();
     //std::cout << "Doing::" << rocketState.simHeight[1] << " <- height | start time -> " << simStartTime << " allMass = " << allMass << std::endl;
     //std::cout<< "Data: " << rocketState.velocity << " <- velocity | mach -> " << rocketState.calculateMachNumber(rocketState.simHeight[1]) << std::endl;
