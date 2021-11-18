@@ -10,10 +10,6 @@
 #include "SDcard.h"
 
 
-void servoTask(void *arg);
-
-void SDTask(void *arg);
-
 void imuCalculationTask(void *arg);
 
 void errorTask(void *arg);

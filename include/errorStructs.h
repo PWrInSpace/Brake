@@ -12,7 +12,6 @@ enum IMUError{
 enum SDError{
     SD_NOERROR = 0,
     SD_INIT_ERROR,
-    SD_OPEN_ERROR,
     SD_WRITE_ERROR,
 };
 

@@ -8,7 +8,7 @@ extern Errors errors;
 String createDataFrame(char* pre){
     char dataFrame[200];
 
-    snprintf(dataFrame, sizeof(dataFrame), "%s; %d; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %2d; %0.3f; %3d; %d; %d; %d; %d; %d; %d;",
+    snprintf(dataFrame, sizeof(dataFrame), "%s; %d; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %0.3f; %2d; %0.3f; %3d; %d; %d; %d; %d; %d; %d;\n",
             pre, millis() ,dataStruct.imuData.ax, dataStruct.imuData.ay, dataStruct.imuData.az,
             dataStruct.imuData.gx, dataStruct.imuData.gy, dataStruct.imuData.gz,
             dataStruct.imuData.mx, dataStruct.imuData.my, dataStruct.imuData.mz,

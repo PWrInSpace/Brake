@@ -2,7 +2,6 @@
 #define QUEUE_ROCKET_H
 
 #include <Arduino.h>
-#include <stdlib.h>
 
 struct Queue_struct {
   String data;
@@ -13,7 +12,6 @@ class Queue {
   private:
   Queue_struct *head;
   Queue_struct *tail;
-  unsigned int numberOfElements;
 
   public:
   Queue();

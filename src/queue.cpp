@@ -3,7 +3,6 @@
 Queue::Queue(){
   head = nullptr;
   tail = nullptr;
-  numberOfElements = 0;
 }
 
 Queue::~Queue(){
@@ -29,10 +28,8 @@ void Queue::push(const String & value){
     }
   }
   catch(std::bad_alloc & e){
-    return;
+    //error handling
   }
-  
-  numberOfElements += 1;
 }
 
 String Queue::pop(){
@@ -43,31 +40,43 @@ String Queue::pop(){
     delete head;
   
     head = temp;
-    if(temp == nullptr){  //gdy ściągniety został ostatni element
+    if(temp == nullptr){  //if it was last element
       tail = temp; 
     }
-    numberOfElements -= 1;
+
   }else{
-    //Serial.println("Brak elementow!");
+    //error handling - list is empty
   }
   
   return value;
 }
 
+unsigned int Queue::getNumberOfElements(){
+  unsigned int elements = 0;
+  
+  Queue_struct *current = head;
+  if(current == nullptr){
+    return elements;
+  }
+
+  while(current != nullptr){
+    current = current->next;
+    elements++;
+  }
+
+  return elements;
+}
+
 void Queue::print(){
   Queue_struct *current = head;
   if(current == nullptr){
-    Serial.println("Brak elementow!");
+    //Serial.println("Brak elementow!"); 
     return;
   }
-  Serial.println("=====================================");
+  //Serial.println("=====================================");
   while (current != nullptr) {
-    Serial.println(current->data);
+    //Serial.println(current->data);
     current = current->next;
   }
-  Serial.println("=====================================");
-}
-
-unsigned int Queue::getNumberOfElements(){
-  return numberOfElements;
+  //Serial.println("=====================================");
 }

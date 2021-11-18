@@ -6,20 +6,18 @@ SDCard::SDCard(uint8_t _mosi, uint8_t _miso, uint8_t _sck, uint8_t _cs):
 bool SDCard::init(){
     //pinMode(boardLed, OUTPUT);
     //digitalWrite(boardLed, LOW);
-
-    SPIClass SPISD(HSPI);
-    SPISD.begin(sck, miso, mosi);
+    spi = SPIClass(HSPI);
+    spi.begin(sck, miso, mosi);
     SPI.setClockDivider(SPI_CLOCK_DIV2);
     
-    if(!SD.begin(cs, SPISD)){
+    if(!SD.begin(cs, spi)){
         return false;
     }
 
     return true;
 }
 
-bool SDCard::write(const String & path, const String & dataFrame){
-    
+bool SDCard::write(String path, const String & dataFrame){
     File file = SD.open(path, "a");  
     
     if(file) {

@@ -14,6 +14,7 @@ Queue queue;
 DataStruct dataStruct;
 Servo servo;
 SDCard sdCard(GPIO_NUM_25, GPIO_NUM_27, GPIO_NUM_26, GPIO_NUM_33);
+
 ImuAPI IMU(AccelerometerScale::A_16g, GyroscpoeScale::G_1000dps);
 KalmanFilter filter(0.001, 0.003, 0.03);
 
@@ -22,17 +23,17 @@ void setup()
   Serial.begin(115200);
   Wire.begin();
 
-  xTaskCreate(stateTask,      "state Task",      65536, NULL, 1, NULL);
-  xTaskCreate(SDTask,         "SD Task",         65536, NULL, 2, NULL);
-  xTaskCreate(errorTask,      "error Task",      16384, NULL, 3, NULL);
-  //xTaskCreate(simulationTask, "simulation task", 65536, NULL, 4, NULL);
-  
-  servoInit();
-  
+  xTaskCreate(errorTask, "error Task", 8192, NULL, 3, NULL);
+
   if(!sdCard.init()){
-    errors.sd_error = SD_INIT_ERROR;
-    while(1){delay(100);}
-  }
+        errors.sd_error = SD_INIT_ERROR;
+        while (1)
+        {
+            vTaskDelay(100/portTICK_PERIOD_MS);
+        }
+    }
+
+  servoInit();
 
   if(!IMU.begin()){
     errors.imu_error = IMU_INIT_ERROR;
@@ -44,24 +45,26 @@ void setup()
   }
 
   dataStruct.rocketState = LAUNCHPAD;
-  //delay(1000);
+  delay(1000);
+
+  xTaskCreate(stateTask,      "state Task",      32768, NULL, 1, NULL);
 }
 
 void loop()
 {  
-  delay(50);
+  bool sdWriteStatus = false;
+  delay(20);
 
   IMU.readRawData();
   dataStruct.imuData = IMU.getRawDataStruct();
-  sdCard.write(rawPath, createDataFrame("RAW"));
-  
+  sdWriteStatus = sdCard.write("/Brake_raw.txt", createDataFrame("RAW"));
   Serial.println(createDataFrame("RAW")); //debug
   
+  dataStruct.kalmanRoll = filter.update(atan2(dataStruct.imuData.ax * 9.81, dataStruct.imuData.ay * 9.81) * 180 / PI, dataStruct.imuData.gz);
   dataStruct.imuData = IMU.getDataStruct();
-  sdCard.write(clcPath, createDataFrame("CLC"));
+  sdWriteStatus &= sdCard.write("/Brake_clc.txt", createDataFrame("CLC"));
   
   Serial.println(createDataFrame("CLC")); //debug
-
-  dataStruct.kalmanRoll = filter.update(atan2(dataStruct.imuData.ax * 9.81, dataStruct.imuData.ay * 9.81) * 180 / PI, dataStruct.imuData.gz);
- 
+  
+  sdWriteStatus ? errors.sd_error = SD_NOERROR : errors.sd_error = SD_WRITE_ERROR; //error handling
 }

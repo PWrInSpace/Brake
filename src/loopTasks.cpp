@@ -4,7 +4,6 @@ extern Errors errors;
 extern Queue queue;
 extern DataStruct dataStruct;
 extern ImuAPI IMU;
-extern bool isSaving;
 
 void imuCalcuationsTask(void *arg){
     float maxAltitude = 0;
@@ -28,49 +27,6 @@ void imuCalcuationsTask(void *arg){
     */
 }
 
-void SDTask(void *arg) {
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-    /*
-    //raw data
-    SD_write("/Brake_raw_data.txt", "RAW; a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature; simulation apogee; servo position; Rocket state; Air brake state; IgniterState; SD error; Imu error; Rocket error;\n");
-    
-    //calcualted data
-    SD_write("/Brake_data.txt", "CLC; a.x; a.y; a.z; g.x; g.y; g.z; pressure; altitude; temperature; Simulation apogee; servo position; Rocket state; Air brake state; IgniterState; SD error; Imu error; Rocket error;\n");
-    
-    while(1) {
-        //Serial.println(queue.getNumberOfElements()); //debug
-        while(queue.getNumberOfElements()){
-            String path;
-            isSaving = true;
-            String dataFrame = queue.pop() + "\n";
-            
-            switch(dataFrame[0]){
-                case 'R':
-                    path = "/Brake_raw_data.txt";
-                    break;
-                case 'C':
-                    path = "/Brake_data.txt";
-                    break;
-                default:
-                    errors.sd_error = SD_WRITE_ERROR;
-            }
-
-            if(!SD_write(path, dataFrame)){
-                errors.sd_error = SD_WRITE_ERROR;
-            }else{
-                errors.sd_error = SD_NOERROR;
-            }
-    
-            //Serial.println(dataFrame + String("    sd")); // Dla debugu
-        
-            vTaskDelay(1 / portTICK_PERIOD_MS);
-        }
-        isSaving = false;
-
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
-    }
-    */
-}
 
 //Simple error handling
 void errorTask(void *arg){ 
