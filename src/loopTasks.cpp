@@ -14,6 +14,7 @@ void imuCalcuationsTask(void *arg){
     const uint64_t apogeeConfirmTime = 500; //ms
     const uint64_t igniterSafeTime = 15000;
     const uint64_t timeout = 30000; //ms
+    char log[80];
     bool apogeeAltitudeConfirm = false;
     bool apogeeAccZConfirm = false;
 
@@ -22,23 +23,30 @@ void imuCalcuationsTask(void *arg){
 
         if(maxAltitude < currentAltitude){
             maxAltitude = currentAltitude;
-            apogeeTimer = milli();
+            apogeeTimer = millis();
         }
 
         if(dataStruct.imuData.az < 0.70){
-            appogeAccZConfirm = true;
+            apogeeAccZConfirm = true;
         }
 
         if(apogeeTimer - millis() > apogeeConfirmTime){
             apogeeAltitudeConfirm = true;
         }
 
-        if((apogeeAltitudeConfirm && apogeeAccZConfirm) && flightTimer.getFlightTime > igniterSafeTime){
+        if((apogeeAltitudeConfirm && apogeeAccZConfirm) && (flightTimer.getFlightTime() > igniterSafeTime)){
             dataStruct.apogeeDetect = true;
-            sdCard.write("/Break_logs.txt", String(Sprintf("Apogee detected : %f; %f; %d; %d;", maxAltitude, flightTimer.getFlightTime, apogeeAltitudeConfirm, apogeeAccZConfirm)));
+            snprintf(log, sizeof(log), "Apogee detected : %f; %d; %d; %d;", 
+                    maxAltitude, (int)flightTimer.getFlightTime(), apogeeAltitudeConfirm, apogeeAccZConfirm);
+            
+            sdCard.write("/Break_logs.txt", String(log));
             vTaskDelete(NULL);
-        }else if(flightTimer.getFlightTime > timeout){
-            sdCard.write("/Break_logs.txt", String(Sprintf("Apogee not detected : %f; %f; %d; %d;", maxAltitude, flightTimer.getFlightTime, apogeeAltitudeConfirm, apogeeAccZConfirm)));
+        
+        }else if(flightTimer.getFlightTime() > timeout){
+            snprintf(log, sizeof(log), "Apogee not detected : %f; %d; %d; %d;", 
+                    maxAltitude, (int)flightTimer.getFlightTime(), apogeeAltitudeConfirm, apogeeAccZConfirm);
+            
+            sdCard.write("/Break_logs.txt", String(log));
             vTaskDelete(NULL);
         }
 
@@ -90,7 +98,7 @@ void stateTask(void *arg){
             dataStruct.rocketState = FLIGHT;
             xTaskCreate(flightControlTask,  "flight control task",    16384,  NULL, 1, NULL); 
             xTaskCreate(imuCalcuationsTask, "imuC calculations task", 32768,  NULL, 1, NULL);
-            xTaskCreate(simulationTask,     "simulation Task",        65 536, NULL, 2, NULL);
+            xTaskCreate(simulationTask,     "simulation Task",        65536, NULL, 2, NULL);
             Serial.println("FLIGHT");
         
         }else if(dataStruct.rocketState == FLIGHT && dataStruct.rss.airBrakeEjection != 0){

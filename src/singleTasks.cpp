@@ -4,6 +4,7 @@
 extern DataStruct dataStruct;
 extern Servo servo;
 extern Errors errors;
+extern FlightTimer flightTimer;
 
 String createDataFrame(char* pre){
     char dataFrame[200];

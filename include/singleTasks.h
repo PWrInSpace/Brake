@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <ESP32Servo.h>
 #include "dataStructs.h"
+#include "flightTimer.h"
 
 //Servo 
 const uint8_t servoClosePosition = 10;
