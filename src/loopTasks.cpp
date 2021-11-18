@@ -4,14 +4,14 @@ extern Errors errors;
 extern Queue queue;
 extern DataStruct dataStruct;
 extern ImuAPI IMU;
+extern FlightTimer flightTimer;
 
 void imuCalcuationsTask(void *arg){
     float maxAltitude = 0;
     float currentAltitude = 0;
-    uint64_t timer = millis();
+    uint64_t timer = flightTimer.getLiftOffTime();
     uint16_t apogeeConfirmTime = 2000; //ms
-    
-    /*
+    Serial.println("task odpalony");
     while(1){
         currentAltitude = dataStruct.imuData.altitude;
 
@@ -20,11 +20,12 @@ void imuCalcuationsTask(void *arg){
             timer = millis();
         }
 
-        if(timer - millis() > apogeConfirmTime){
+        if(timer - millis() > apogeeConfirmTime){
 
         }
+        vTaskDelay(1/portTICK_PERIOD_MS);
     }
-    */
+    
 }
 
 
@@ -38,12 +39,9 @@ void errorTask(void *arg){
     
     while(1){
         if(errors.imu_error || errors.sd_error || errors.rocketError){
-            digitalWrite(buzzerPin, HIGH); //rozkmina czy lepiej przypsywać stan do zmiennej i tylko przy zmianie stanu używac digitalWrite czy tak jak teraz
-            //while() blokowanie porgramu na state LAUNCHPAD podczas erroru
-            
+            digitalWrite(buzzerPin, HIGH); 
         }else{
             digitalWrite(buzzerPin, LOW);
-            //Serial.println("No Error");
         }
 
         vTaskDelay(500 / portTICK_PERIOD_MS);
@@ -70,10 +68,12 @@ void stateTask(void *arg){
 
     while(1){
         if((dataStruct.rocketState == LAUNCHPAD) && ((digitalRead(liftOffDetector) == 0) || dataStruct.imuData.altitude > 100)){
+            flightTimer.startTimer();
             dataStruct.rocketState = FLIGHT;
+            xTaskCreate(flightControlTask,  "flight control task",    16384, NULL, 1, NULL); 
+            xTaskCreate(imuCalcuationsTask, "imuC calculations task", 32768, NULL, 1, NULL);
             Serial.println("FLIGHT");
-            xTaskCreate(flightControlTask, "flight control task", 16384, NULL, 1, NULL); 
-
+        
         }else if(dataStruct.rocketState == FLIGHT && dataStruct.rss.airBrakeEjection != 0){
             dataStruct.rocketState = AIRBRAKEON;
             Serial.println("AIRBRAKE");

@@ -8,11 +8,13 @@
 #include "singleTasks.h"
 #include "imuAPI.h"
 #include "KalmanFilter.h"
+#include "flightTimer.h"
 
 Errors errors;
 Queue queue;
 DataStruct dataStruct;
 Servo servo;
+FlightTimer flightTimer;
 SDCard sdCard(GPIO_NUM_25, GPIO_NUM_27, GPIO_NUM_26, GPIO_NUM_33);
 
 ImuAPI IMU(AccelerometerScale::A_16g, GyroscpoeScale::G_1000dps);
@@ -59,9 +61,9 @@ void loop()
   delay(20);
 
   IMU.readRawData();
-  dataStruct.imuData = IMU.getRawDataStruct();
-  sdWriteStatus = sdCard.write("/Brake_raw.txt", createDataFrame("RAW"));
-  Serial.println(createDataFrame("RAW")); //debug
+  //dataStruct.imuData = IMU.getRawDataStruct();
+  //sdWriteStatus = sdCard.write("/Brake_raw.txt", createDataFrame("RAW"));
+  //Serial.println(createDataFrame("RAW")); //debug
   
   dataStruct.kalmanRoll = filter.update(atan2(dataStruct.imuData.ax * 9.81, dataStruct.imuData.ay * 9.81) * 180 / PI, dataStruct.imuData.gz);
   dataStruct.imuData = IMU.getDataStruct();
