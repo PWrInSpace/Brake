@@ -27,25 +27,21 @@ void setup()
 
   xTaskCreate(errorTask, "error Task", 8192, NULL, 3, NULL);
 
-  if (!dataStruct.rss.init())
-  {
+  if (!dataStruct.rss.init()){
     errors.rocketError = ROCKET_INIT_ERROR;
-    while (1)
-    {
-      delay(100);
-    }
+    while (1){delay(100);}
   }
 
-  if (!sdCard.init())
-  {
+  //igniter init
+  pinMode(igniterPin, OUTPUT);
+  digitalWrite(igniterPin, 0);
+
+  if (!sdCard.init()){
     errors.sd_error = SD_INIT_ERROR;
-    while (1)
-    {
-      delay(100);
-    }
+    while (1){delay(100);}
   }
 
-  sdCard.write("/Brake_clc.txt", "CLC; Time; ax; ay; az; gx; gy; gz; mx; my; mz; pressure; altitude; temperature; kalman; simulationApogee; servo postiton; rocketState, air brake status, igniter status, apogee detection status, sd error, imu error, rocket error");
+  sdCard.write("/Brake_clc.txt", "CLC; Time; ax; ay; az; gx; gy; gz; mx; my; mz; pressure; altitude; temperature; kalman; simulationApogee; servo postiton; rocketState, air brake status, igniter status, apogee detection status, sd error, imu error, rocket error\n");
 
   if(!IMU.begin()){
     errors.imu_error = IMU_INIT_ERROR;
