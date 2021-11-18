@@ -9,6 +9,7 @@
 #include "imuAPI.h"
 #include "SDcard.h"
 #include "flightTimer.h"
+#include "RocketStruct.h"
 
 void imuCalculationTask(void *arg);
 
