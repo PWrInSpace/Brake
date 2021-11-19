@@ -43,7 +43,7 @@ bool ImuAPI::setInitPressure(){
         tempPress = ps.readPressureMillibars();
         measurement++;
 
-        if(abs(1023 - tempPress) < 50){
+        if(abs(1023 - tempPress) < 75){
             press += tempPress;
         }else{
             i--;

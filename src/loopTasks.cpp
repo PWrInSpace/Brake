@@ -15,6 +15,7 @@ void imuCalcuationsTask(void *arg)
     const uint64_t apogeeConfirmTime = 1000; //ms
     const uint64_t igniterSafeTime = 15000;
     const uint64_t timeout = 30000; //ms
+    const uint64_t apogeeDetectStart = 5000; //ms
     char log[80];
     bool apogeeAltitudeConfirm = false;
     bool apogeeAccZConfirm = false;
@@ -27,11 +28,11 @@ void imuCalcuationsTask(void *arg)
             maxAltitude = currentAltitude;
             apogeeTimer = millis();
         }
-        if(dataStruct.imuData.az < 0.40){
+        if((dataStruct.imuData.az < 0.40) && (flightTimer.getFlightTime() > apogeeDetectStart)){
             apogeeAccZConfirm = true;
         }
 
-        if(apogeeTimer - millis() > apogeeConfirmTime){
+        if((apogeeTimer - millis() > apogeeConfirmTime) && flightTimer.getFlightTime() > apogeeDetectStart){
             apogeeAltitudeConfirm = true;
         }
 
