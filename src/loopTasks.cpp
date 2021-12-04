@@ -13,7 +13,7 @@ void imuCalcuationsTask(void *arg)
     float currentAltitude = 0;
     uint64_t apogeeTimer = 0;
     const uint64_t apogeeConfirmTime = 1000; //ms
-    const uint64_t igniterSafeTime = 15000;
+    const uint64_t igniterSafeTime = 9000;
     const uint64_t timeout = 30000; //ms
     const uint64_t apogeeDetectStart = 5000; //ms
     char log[80];
@@ -32,7 +32,7 @@ void imuCalcuationsTask(void *arg)
             apogeeAccZConfirm = true;
         }
 
-        if((apogeeTimer - millis() > apogeeConfirmTime) && flightTimer.getFlightTime() > apogeeDetectStart){
+        if((millis() - apogeeTimer > apogeeConfirmTime) && (flightTimer.getFlightTime() > apogeeDetectStart)){
             apogeeAltitudeConfirm = true;
         }
 
@@ -61,10 +61,13 @@ void imuCalcuationsTask(void *arg)
 void errorTask(void *arg)
 {
     uint8_t buzzerPin = 4;
+    pinMode(buzzerPin, OUTPUT);
     errors.imu_error = IMU_NOERROR;
     errors.sd_error = SD_NOERROR;
 
-    pinMode(buzzerPin, OUTPUT);
+    digitalWrite(buzzerPin, HIGH);
+    vTaskDelay(175);
+    digitalWrite(buzzerPin, LOW);
 
     while (1)
     {

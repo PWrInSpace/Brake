@@ -22,9 +22,9 @@ String createDataFrame(char* pre){
 }
 
 void flightControlTask(void *arg){
-    const uint64_t breakEjectionTime = 10000;
-    const uint64_t deployRecoveryTimeout = 20000;
-    const uint64_t breakCloseTime = 30000; 
+    const uint64_t breakEjectionTime = 7000;
+    const uint64_t deployRecoveryTimeout = 13000;
+    const uint64_t breakCloseTime = 20000; 
     bool work = true;
     
 

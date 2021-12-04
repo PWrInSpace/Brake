@@ -24,7 +24,7 @@ void setup()
 {
   Serial.begin(115200);
   Wire.begin();
-
+  
   xTaskCreate(errorTask, "error Task", 8192, NULL, 3, NULL);
 
   if (!dataStruct.rss.init()){
