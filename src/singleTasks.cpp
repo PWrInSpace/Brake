@@ -1,5 +1,6 @@
 #include "singleTasks.h"
 #include "dataStructs.h"
+#include "config.h"
 
 extern DataStruct dataStruct;
 extern Servo servo;
@@ -22,14 +23,14 @@ String createDataFrame(char* pre){
 }
 
 void flightControlTask(void *arg){
-    const uint64_t breakEjectionTime = 7000;
-    const uint64_t deployRecoveryTimeout = 13000;
-    const uint64_t breakCloseTime = 20000; 
+    const uint64_t brakeEjectionTime = BRAKE_EJECION_TIME;
+    const uint64_t deployRecoveryTimeout = RECOV_TIME_DEPLOY;
+    const uint64_t brakeCloseTime = BRAKE_CLOSE_TIME; 
     bool work = true;
     
 
     while(work){
-        if((breakEjectionTime < flightTimer.getFlightTime()) && (dataStruct.rss.airBrakeEjection == 0)){
+        if((brakeEjectionTime < flightTimer.getFlightTime()) && (dataStruct.rss.airBrakeEjection == 0)){
             servo.write(servoOpenPostion);
             dataStruct.rss.airBrakeEjection = 1;
             dataStruct.rss.servoPosition = servoOpenPostion;
@@ -44,8 +45,8 @@ void flightControlTask(void *arg){
         vTaskDelay(1 / portTICK_PERIOD_MS);
     }
     
-    //close break at 30s +- 0.1s
-    while(flightTimer.getFlightTime() < breakCloseTime){vTaskDelay(100 / portTICK_PERIOD_MS);}  
+    //close brake at 30s +- 0.1s
+    while(flightTimer.getFlightTime() < brakeCloseTime){vTaskDelay(100 / portTICK_PERIOD_MS);}  
 
     servo.write(servoClosePosition); 
     dataStruct.rss.airBrakeEjection = 0;
@@ -58,8 +59,8 @@ void flightControlTask(void *arg){
 }
 
 void servoInit(){
-    uint8_t servoPin = 5;
-    uint8_t servoClosePosition = 0;
+    uint8_t servoPin = GPIO_NUM_18;
+    //uint8_t servoClosePosition = 10;
 
     ESP32PWM::allocateTimer(0);
     ESP32PWM::allocateTimer(1);

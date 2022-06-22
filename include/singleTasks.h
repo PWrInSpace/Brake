@@ -7,8 +7,8 @@
 #include "flightTimer.h"
 
 //Servo 
-const uint8_t servoClosePosition = 0;
-const uint8_t servoOpenPostion = 120;
+const uint8_t servoClosePosition = 180;
+const uint8_t servoOpenPostion = 0;
 
 String createDataFrame(char* pre);
 

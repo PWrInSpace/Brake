@@ -1,4 +1,5 @@
 #include "loopTasks.h"
+#include "config.h"
 
 extern Errors errors;
 extern Queue queue;
@@ -12,10 +13,10 @@ void imuCalcuationsTask(void *arg)
     float maxAltitude = 0;
     float currentAltitude = 0;
     uint64_t apogeeTimer = 0;
-    const uint64_t apogeeConfirmTime = 1000; //ms
-    const uint64_t igniterSafeTime = 9000;
-    const uint64_t timeout = 30000; //ms
-    const uint64_t apogeeDetectStart = 5000; //ms
+    const uint64_t apogeeConfirmTime = APOGEE_CONFIRMATION_TIME; //ms
+    const uint64_t igniterSafeTime = IMU_ALLOW_TIME;
+    const uint64_t timeout = RECOV_TIME_DEPLOY + 10000; //ms
+    const uint64_t apogeeDetectStart = 1000; //ms
     char log[80];
     bool apogeeAltitudeConfirm = false;
     bool apogeeAccZConfirm = false;
@@ -60,14 +61,9 @@ void imuCalcuationsTask(void *arg)
 //Simple error handling
 void errorTask(void *arg)
 {
-    uint8_t buzzerPin = 4;
-    pinMode(buzzerPin, OUTPUT);
     errors.imu_error = IMU_NOERROR;
     errors.sd_error = SD_NOERROR;
 
-    digitalWrite(buzzerPin, HIGH);
-    vTaskDelay(175);
-    digitalWrite(buzzerPin, LOW);
 
     while (1)
     {
@@ -111,7 +107,7 @@ void stateTask(void *arg)
 
     while (1)
     {
-        if ((dataStruct.rocketState == LAUNCHPAD) && ((digitalRead(liftOffDetector) == 0) || dataStruct.imuData.altitude > 100))
+        if ((dataStruct.rocketState == LAUNCHPAD) && ((digitalRead(liftOffDetector) == 0)))
         {
             flightTimer.startTimer();
             dataStruct.rocketState = FLIGHT;
@@ -135,6 +131,11 @@ void stateTask(void *arg)
         {
             dataStruct.rocketState = ONGROUND;
             Serial.println("On ground");
+        }else if(dataStruct.rocketState == ONGROUND){
+            digitalWrite(buzzerPin, HIGH);
+            vTaskDelay(500 / portTICK_PERIOD_MS);
+            digitalWrite(buzzerPin, LOW);
+            vTaskDelay(500 / portTICK_PERIOD_MS);
         }
         vTaskDelay(2 / portTICK_PERIOD_MS);
     }

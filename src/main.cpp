@@ -25,6 +25,9 @@ void setup()
   Serial.begin(115200);
   Wire.begin();
   
+  pinMode(buzzerPin, OUTPUT);
+
+
   xTaskCreate(errorTask, "error Task", 8192, NULL, 3, NULL);
 
   if (!dataStruct.rss.init()){
@@ -36,9 +39,10 @@ void setup()
   pinMode(igniterPin, OUTPUT);
   digitalWrite(igniterPin, 0);
 
-  if (!sdCard.init()){
+  while (!sdCard.init()){
     errors.sd_error = SD_INIT_ERROR;
-    while (1){delay(100);}
+    Serial.println("SD init error!");
+    delay(1000);
   }
 
   sdCard.write("/Brake_clc.txt", "CLC; Time; ax; ay; az; gx; gy; gz; mx; my; mz; pressure; altitude; temperature; kalman; simulationApogee; servo postiton; rocketState, air brake status, igniter status, apogee detection status, sd error, imu error, rocket error\n");
@@ -60,7 +64,14 @@ void setup()
 
   dataStruct.rocketState = LAUNCHPAD;
 
-  delay(1000);
+  
+  for(int i = 0; i < 2; ++i){
+    digitalWrite(buzzerPin, HIGH);
+    vTaskDelay(250 / portTICK_PERIOD_MS);
+    digitalWrite(buzzerPin, LOW);
+    vTaskDelay(250 / portTICK_PERIOD_MS);
+  }
+
 
   xTaskCreate(stateTask, "state Task", 32768, NULL, 1, NULL);
 }
@@ -77,9 +88,44 @@ void loop()
   
   //dataStruct.kalmanRoll = filter.update(atan2(dataStruct.imuData.ax * 9.81, dataStruct.imuData.ay * 9.81) * 180 / PI, dataStruct.imuData.gz);
   dataStruct.imuData = IMU.getDataStruct();
-  sdWriteStatus = sdCard.write("/Brake_clc.txt", createDataFrame("CLC"));
+  char tempDataFrame[10]="CLC";
+  sdWriteStatus = sdCard.write("/Brake_clc.txt", createDataFrame(tempDataFrame));
   
-  Serial.println(createDataFrame("CLC")); //debug
-
+  Serial.println(createDataFrame(tempDataFrame)); //debug
+  
   sdWriteStatus ? errors.sd_error = SD_NOERROR : errors.sd_error = SD_WRITE_ERROR; //error handling
 }
+
+/****************************************/
+//servo calibrstion
+/*
+uint8_t position  = 180;
+
+void setup()
+{
+  Serial.begin(115200);
+  servoInit();
+  servo.write(position);
+  Serial.print("Angle: ");
+  Serial.println(position);
+}
+
+void loop()
+{
+  if(Serial.available()){
+    String str  = Serial.readStringUntil('\n');
+    int newPosition = str.toInt();
+
+    if(newPosition <= 180 && newPosition >= 0){
+      Serial.print("New angle: ");
+      Serial.println(newPosition);
+      position = newPosition;
+    }
+
+    Serial.print("Angle: ");
+    Serial.println(position);
+    servo.write(position);
+  }
+  
+  delay(500); 
+}*/
